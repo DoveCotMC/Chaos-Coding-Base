@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "ccb",
+  "version": "${version}",
+  "name": "ChaosCodingBase",
+  "description": "Utilities for Minecraft Fabric",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/ccb/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "team.dovecot.ccb.datagen.ChaosBaseDataGenerator"
+    ],
+    "client": [
+      "team.dovecot.ccb.client.ChaosBaseClient"
+    ],
+    "main": [
+      "team.dovecot.ccb.ChaosBase"
+    ]
+  },
+  "mixins": [
+    "ccb.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
