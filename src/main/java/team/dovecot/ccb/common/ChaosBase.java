@@ -1,4 +1,4 @@
-package team.dovecot.ccb;
+package team.dovecot.ccb.common;
 
 import net.fabricmc.api.ModInitializer;
 

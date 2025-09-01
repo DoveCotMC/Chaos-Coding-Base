@@ -17,7 +17,7 @@
       "team.dovecot.ccb.client.ChaosBaseClient"
     ],
     "main": [
-      "team.dovecot.ccb.ChaosBase"
+      "team.dovecot.ccb.common.ChaosBase"
     ]
   },
   "mixins": [
