@@ -4,9 +4,9 @@ import team.dovecot.ccb.common.math.Vec2d;
 import team.dovecot.ccb.common.math.Vec3d;
 
 public class Vertex {
-    public final Vec3d position;
-    public final Vec3d color;
-    public final Vec2d uv;
+    public Vec3d position;
+    public Vec3d color;
+    public Vec2d uv;
 
     public Vertex(Vec3d position, Vec3d color, Vec2d uv) {
         this.position = position;
