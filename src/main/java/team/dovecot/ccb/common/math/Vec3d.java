@@ -1,5 +1,7 @@
 package team.dovecot.ccb.common.math;
 
+import java.util.Objects;
+
 public class Vec3d {
     private double x;
     private double y;
@@ -81,5 +83,17 @@ public class Vec3d {
         this.z /= z;
 
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Vec3d vec3d = (Vec3d) o;
+        return Double.compare(x, vec3d.x) == 0 && Double.compare(y, vec3d.y) == 0 && Double.compare(z, vec3d.z) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
     }
 }
