@@ -35,7 +35,6 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
 //        builder.vertex(1, 1, 0).color(0f, 0f, 1f, 1f).endVertex();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         tesselator.end();
-        DefaultVertexFormat
         poseStack.popPose();
     }
 
