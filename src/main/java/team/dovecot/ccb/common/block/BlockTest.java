@@ -9,7 +9,7 @@ import team.dovecot.ccb.common.block.entity.BlockEntityTest;
 
 public class BlockTest extends BaseEntityBlock {
     public BlockTest(Properties properties) {
-        super(properties);
+        super(properties.noCollission().noOcclusion());
     }
 
     @Override

@@ -1,10 +1,7 @@
 package team.dovecot.ccb.client.block.entity;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -23,13 +20,13 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
         RenderSystem.enableCull();
 
-        var builder = tesselator.getBuilder();
+        BufferBuilder builder = tesselator.getBuilder();
 
         poseStack.pushPose();
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
         builder.vertex(poseStack.last().pose(), 0, 0, 0).color(1f, 0f, 0f, 1f).endVertex();
-        builder.vertex(poseStack.last().pose(), 16, 0, 0).color(0f, 1f, 0f, 1f).endVertex();
-        builder.vertex(poseStack.last().pose(), 16, 16, 0).color(0f, 0f, 1f, 1f).endVertex();
+        builder.vertex(poseStack.last().pose(), 1, 0, 0).color(0f, 1f, 0f, 1f).endVertex();
+        builder.vertex(poseStack.last().pose(), 0.5f, 1, 0).color(0f, 0f, 1f, 1f).endVertex();
 //        builder.vertex(0, 0, 0).color(1f, 0f, 0f, 1f).endVertex();
 //        builder.vertex(1, 0, 0).color(0f, 1f, 0f, 1f).endVertex();
 //        builder.vertex(1, 1, 0).color(0f, 0f, 1f, 1f).endVertex();
