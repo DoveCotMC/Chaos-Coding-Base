@@ -1,10 +1,18 @@
 package team.dovecot.ccb.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.fabric.impl.client.rendering.BlockEntityRendererRegistryImpl;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
 import team.dovecot.ccb.client.block.entity.BlockEntityRendererTest;
+import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.common.block.CCBBlocks;
+
+import java.io.IOException;
 
 public class ChaosBaseClient implements ClientModInitializer {
     @Override
@@ -12,5 +20,21 @@ public class ChaosBaseClient implements ClientModInitializer {
         if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
             BlockEntityRendererRegistryImpl.register(CCBBlocks.CCBBlockEntities.TEST_BLOCK_ENTITY, context -> new BlockEntityRendererTest());
         }
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+            @Override
+            public ResourceLocation getFabricId() {
+                return new ResourceLocation("ccb", "custom_resources");
+            }
+
+            @Override
+            public void onResourceManagerReload(ResourceManager resourceManager) {
+                try {
+                    BlockEntityRendererTest.simpleTexture.releaseId();
+                    BlockEntityRendererTest.simpleTexture.load(resourceManager);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 }
