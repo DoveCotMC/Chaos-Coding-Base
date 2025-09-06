@@ -47,9 +47,4 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
         tesselator.end();
         poseStack.popPose();
     }
-
-    @Override
-    public int getViewDistance() {
-        return 4096;
-    }
 }

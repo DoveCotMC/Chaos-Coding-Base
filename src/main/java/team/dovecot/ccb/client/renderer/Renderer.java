@@ -1,7 +1,7 @@
 package team.dovecot.ccb.client.renderer;
 
 import team.dovecot.ccb.client.ModelIdentifier;
-import team.dovecot.ccb.client.renderer.model.LoadedModel;
+import team.dovecot.ccb.client.renderer.model.UploadedModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 public class Renderer {
     private static Renderer instance = null;
 
-    private final Map<ModelIdentifier, LoadedModel> loadedModels = new HashMap<>();
+    private final Map<ModelIdentifier, UploadedModel> loadedModels = new HashMap<>();
 
     private Renderer() {
     }
@@ -22,7 +22,7 @@ public class Renderer {
     }
 
     private void releaseResources() {
-        for (LoadedModel model : loadedModels.values()) {
+        for (UploadedModel model : loadedModels.values()) {
             model.release();
         }
     }
