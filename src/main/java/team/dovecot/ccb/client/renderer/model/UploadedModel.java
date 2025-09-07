@@ -1,6 +1,7 @@
 package team.dovecot.ccb.client.renderer.model;
 
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 
 // TODO: Currently just wrapping VertexBuffer...
 public class UploadedModel {
@@ -11,7 +12,19 @@ public class UploadedModel {
     }
 
     public static UploadedModel upload(LocalModel model) {
-        return new UploadedModel();
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+
+        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.BLOCK);
+
+//        builder.vertex();
+
+        ChunkRenderDispatcher
+
+        BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
+        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+        vertexBuffer.upload(renderedBuffer);
+
+        return new UploadedModel(vertexBuffer);
     }
 
     public void release() {

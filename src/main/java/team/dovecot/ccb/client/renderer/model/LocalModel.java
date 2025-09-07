@@ -17,4 +17,8 @@ public class LocalModel {
     public int getNumFaces() {
         return faces.size();
     }
+
+    public int getNumVerticesPerFace() {
+        return numVerticesPerFace;
+    }
 }
