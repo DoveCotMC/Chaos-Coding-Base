@@ -1,6 +1,7 @@
 package team.dovecot.ccb.client.renderer.model;
 
 import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 
 // TODO: Currently just wrapping VertexBuffer...
@@ -18,7 +19,8 @@ public class UploadedModel {
 
 //        builder.vertex();
 
-        ChunkRenderDispatcher
+//        ChunkRenderDispatcher
+        LevelRenderer.renderChunkLayer
 
         BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
