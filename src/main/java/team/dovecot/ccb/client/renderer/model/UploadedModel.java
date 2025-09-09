@@ -18,9 +18,9 @@ public class UploadedModel {
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.BLOCK);
 
 //        builder.vertex();
-
+//
 //        ChunkRenderDispatcher
-        LevelRenderer.renderChunkLayer
+//        LevelRenderer.renderChunkLayer
 
         BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
