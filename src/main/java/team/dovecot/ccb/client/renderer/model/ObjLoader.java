@@ -23,8 +23,23 @@ public class ObjLoader {
 //                LOGGER.debug("Resource: " + modelString);
 
                 for (String line : modelString.lines().toList()) {
-                    if (line.startsWith("o") || line.startsWith("g")) {
-                        System.out.println(line);
+                    String[] tokens = line.split(" ");
+                    switch (tokens[0]) {
+                        case "usemtl":
+                            System.out.println(line);
+                            break;
+                        case "g":
+                        case "o":
+                            System.out.println(line);
+                            break;
+                        case "v":
+                            break;
+                        case "vt":
+                            break;
+                        case "vn":
+                            break;
+                        case "f":
+                            break;
                     }
                 }
             } catch (IOException e) {
