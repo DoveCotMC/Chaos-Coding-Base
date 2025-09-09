@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class ObjLoader {
     public static void load(String path, IFileProvider fileProvider) {
-        LOGGER.info("Loading Obj model: \"" + path + "\"");
+        LOGGER.info("Loading Obj model: \"{}\"", path);
 //        LOGGER.debug("File Provider: " + fileProvider.getClass());
 
         Optional<InputStream> inputStreamOptional = fileProvider.openFile(path);
@@ -28,11 +28,11 @@ public class ObjLoader {
                     }
                 }
             } catch (IOException e) {
-                LOGGER.error("Unable to read model: " + path);
+                LOGGER.error("Unable to read model: {}", path);
                 e.printStackTrace();
             }
         } else {
-            LOGGER.error("Model not found: " + path);
+            LOGGER.error("Model not found: {}", path);
         }
     }
 }
