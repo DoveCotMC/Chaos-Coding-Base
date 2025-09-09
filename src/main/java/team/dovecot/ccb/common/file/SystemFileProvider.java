@@ -7,34 +7,36 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
-public class SystemFileProvider extends AbstractFileProvider {
+public class SystemFileProvider implements IFileProvider {
     private final File root;
 
     public SystemFileProvider(File root) {
         this.root = root;
     }
 
-    @Override
-    public boolean hasChild(String relativePath) {
-        return new File(root.toPath().resolve(relativePath).toUri()).exists();
+    private File getFile(String relativePath) {
+        return new File(root.toPath().resolve(relativePath).toUri());
     }
 
     @Override
+    public boolean exists(String relativePath) {
+        return getFile(relativePath).exists();
+    }
+
     public boolean isFile(String relativePath) {
-        return new File(root.toPath().resolve(relativePath).toUri()).isFile();
+        return getFile(relativePath).isFile();
     }
 
-    @Nullable
     @Override
-    public InputStream openFile(String relativePath) {
+    public Optional<InputStream> openFile(String relativePath) {
         try {
-            return new FileInputStream(new File(root.toPath().resolve(relativePath).toUri()));
+            return Optional.of(new FileInputStream(new File(root.toPath().resolve(relativePath).toUri())));
         } catch (FileNotFoundException e) {
-            return null;
+            return Optional.empty();
         }
     }
 
