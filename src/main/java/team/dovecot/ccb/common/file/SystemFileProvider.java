@@ -14,6 +14,10 @@ import java.util.Optional;
 public class SystemFileProvider implements IFileProvider {
     private final File root;
 
+    public SystemFileProvider(String root) {
+        this(new File(root));
+    }
+
     public SystemFileProvider(File root) {
         this.root = root;
     }

@@ -32,12 +32,26 @@ public class ObjLoader {
                         case "o":
                             System.out.println(line);
                             break;
-                        case "v":
+                        case "v": {
+                            float x = Float.parseFloat(tokens[1]);
+                            float y = Float.parseFloat(tokens[2]);
+                            float z = Float.parseFloat(tokens[2]);
+                            System.out.println("Vertex: " + tokens[1] + " " + tokens[2] + " " + tokens[3]);
                             break;
-                        case "vt":
+                        }
+                        case "vt": {
+                            float u = Float.parseFloat(tokens[1]);
+                            float v = Float.parseFloat(tokens[2]);
+                            System.out.println("UV: " + tokens[1] + " " + tokens[2]);
                             break;
-                        case "vn":
+                        }
+                        case "vn": {
+                            float x = Float.parseFloat(tokens[1]);
+                            float y = Float.parseFloat(tokens[2]);
+                            float z = Float.parseFloat(tokens[2]);
+                            System.out.println("Normal: " + tokens[1] + " " + tokens[2] + " " + tokens[3]);
                             break;
+                        }
                         case "f":
                             break;
                     }
