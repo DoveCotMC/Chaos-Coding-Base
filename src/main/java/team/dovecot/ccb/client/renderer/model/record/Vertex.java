@@ -27,4 +27,13 @@ public final class Vertex {
     public Vector2d uv() {
         return uv;
     }
+
+    @Override
+    public String toString() {
+        return "Vertex{" +
+                "pos=" + pos +
+                ", normal=" + normal +
+                ", uv=" + uv +
+                '}';
+    }
 }

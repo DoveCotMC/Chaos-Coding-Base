@@ -5,11 +5,9 @@ import java.util.Objects;
 
 public final class Face {
     private final List<Vertex> vertices;
-    private final int numVertices;
 
-    public Face(List<Vertex> vertices, int numVertices) {
+    public Face(List<Vertex> vertices) {
         this.vertices = vertices;
-        this.numVertices = numVertices;
     }
 
     public List<Vertex> vertices() {
@@ -17,6 +15,13 @@ public final class Face {
     }
 
     public int numVertices() {
-        return numVertices;
+        return vertices.size();
+    }
+
+    @Override
+    public String toString() {
+        return "Face{" +
+                "vertices=" + vertices +
+                '}';
     }
 }

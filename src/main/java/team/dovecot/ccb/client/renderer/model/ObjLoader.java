@@ -29,17 +29,17 @@ public class ObjLoader {
 //                LOGGER.debug("Resource: " + modelString);
                 String thisGroup = "";
                 String thisMtl = "";
-                // Group name, Raw Model
-//                Map<String, LocalModel> models = new HashMap<>();
 //                Map<String, List<Face>> facesCache = new HashMap<>();
 //                Map<String, List<Vertex>> verticesCache = new HashMap<>();
 
-                Set<String> groups = new HashSet<>();
-                Map<String, List<Vector3d>> positionCache = new HashMap<>();
-                Map<String, List<Vector3d>> uv = new HashMap<>();
-                Map<String, List<Vector2d>> uvCache = new HashMap<>();
-                Map<String, List<Vector3i[]>> faceCache = new HashMap<>();
+                Set<String> groupNames = new HashSet<>();
+                List<Vector3d> positions = new ArrayList<>();
+                List<Vector3d> normals = new ArrayList<>();
+                List<Vector2d> uvs = new ArrayList<>();
+                // Group name, Material, Index
+                Map<String, Map<String, List<Vector3i[]>>> faceCache = new HashMap<>();
 
+                // Pre-processing, load vertices data...
                 for (String line : modelString.lines().toList()) {
                     String[] tokens = line.split(" ");
                     switch (tokens[0]) {
@@ -53,33 +53,36 @@ public class ObjLoader {
                         case "g":
                         case "o": {
                             thisGroup = tokens[1];
-                            groups.add(thisGroup);
+                            groupNames.add(thisGroup);
                             break;
                         }
                         case "v": {
                             double x = Double.parseDouble(tokens[1]);
                             double y = Double.parseDouble(tokens[2]);
                             double z = Double.parseDouble(tokens[2]);
-                            List<Vector3d> positions = positionCache.getOrDefault(thisGroup, new ArrayList<>());
                             positions.add(new Vector3d(x, y, z));
-                            positionCache.put(thisGroup, positions);
+//                            List<Vector3d> positions = positionCache.getOrDefault(thisGroup, new ArrayList<>());
+//                            positions.add(new Vector3d(x, y, z));
+//                            positionCache.put(thisGroup, positions);
                             break;
                         }
                         case "vt": {
                             double u = Double.parseDouble(tokens[1]);
                             double v = Double.parseDouble(tokens[2]);
-                            List<Vector2d> uvs = uvCache.getOrDefault(thisGroup, new ArrayList<>());
                             uvs.add(new Vector2d(u, v));
-                            uvCache.put(thisGroup, uvs);
+//                            List<Vector2d> uvs = uvCache.getOrDefault(thisGroup, new ArrayList<>());
+//                            uvs.add(new Vector2d(u, v));
+//                            uvCache.put(thisGroup, uvs);
                             break;
                         }
                         case "vn": {
                             double x = Double.parseDouble(tokens[1]);
                             double y = Double.parseDouble(tokens[2]);
                             double z = Double.parseDouble(tokens[2]);
-                            List<Vector3d> normals = uv.getOrDefault(thisGroup, new ArrayList<>());
                             normals.add(new Vector3d(x, y, z));
-                            uv.put(thisGroup, normals);
+//                            List<Vector3d> normals = uv.getOrDefault(thisGroup, new ArrayList<>());
+//                            normals.add(new Vector3d(x, y, z));
+//                            uv.put(thisGroup, normals);
                             break;
                         }
                         case "f": {
@@ -92,18 +95,45 @@ public class ObjLoader {
                                 int y = Integer.parseInt(indexTokens[1]);
                                 int z = Integer.parseInt(indexTokens[2]);
                                 indices[i] = new Vector3i(x, y, z);
-                                System.out.println(indices[i].x + " / " + indices[i].y + " / " + indices[i].z);
+//                                System.out.println(indices[i].x + " / " + indices[i].y + " / " + indices[i].z);
                             }
 
-                            List<Vector3i[]> faces = faceCache.getOrDefault(thisGroup, new ArrayList<>());
+                            Map<String, List<Vector3i[]>> materials = faceCache.getOrDefault(thisGroup, new HashMap<>());
+                            List<Vector3i[]> faces = materials.getOrDefault(thisMtl, new ArrayList<>());
                             faces.add(indices);
-                            faceCache.put(thisGroup, faces);
+                            materials.put(thisMtl, faces);
+                            faceCache.put(thisGroup, materials);
                             break;
                         }
                     }
                 }
-                for (String group : groups) {
-                    System.out.println(positionCache.get(group));
+
+                // Converting to Local model
+                // Group name, Raw Model
+                Map<String, LocalModel> groups = new HashMap<>();
+                for (String groupName : groupNames) {
+                    for (Map.Entry<String, List<Vector3i[]>> entry : faceCache.get(groupName).entrySet()) {
+                        String mtl = entry.getKey();
+                        List<Vector3i[]> faceIndices = entry.getValue();
+                        List<Face> faces = new ArrayList<>();
+                        for (Vector3i[] vertices : faceIndices) {
+                            List<Vertex> verticesInFace = new ArrayList<>();
+                            for (Vector3i vertexIndex : vertices) {
+                                int faceIndex = vertexIndex.x - 1;
+                                int uvIndex = vertexIndex.y - 1;
+                                int normalIndex = vertexIndex.z - 1;
+                                verticesInFace.add(new Vertex(
+                                        new Vector3d(positions.get(faceIndex)),
+                                        new Vector3d(normals.get(normalIndex)),
+                                        new Vector2d(uvs.get(uvIndex))
+                                ));
+                            }
+                            faces.add(new Face(verticesInFace));
+                        }
+                        // TODO: Load model to memory
+                        System.out.println(groupName + ": " + mtl);
+                        groups.put(groupName, new LocalModel(faces, null));
+                    }
                 }
             } catch (IOException e) {
                 LOGGER.error("Unable to read model: {}", path);
@@ -112,11 +142,5 @@ public class ObjLoader {
         } else {
             LOGGER.error("Model not found: {}", path);
         }
-    }
-
-    private static List<LocalModel> parseObjParts(String[] objLines, int startIndex) {
-        List<LocalModel> models = new ArrayList<>();
-
-        return models;
     }
 }
