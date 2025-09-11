@@ -29,7 +29,6 @@ public class Renderer {
 
     public static void close() {
         instance.releaseResources();
-
         instance = null;
     }
 }
