@@ -1,6 +1,6 @@
 package team.dovecot.ccb.client.renderer;
 
-import team.dovecot.ccb.client.ModelIdentifier;
+import team.dovecot.ccb.client.renderer.model.ModelIdentifier;
 import team.dovecot.ccb.client.renderer.model.UploadedModel;
 
 import java.util.HashMap;

@@ -10,4 +10,6 @@ public interface IFileProvider {
     Optional<InputStream> openFile(String relativePath);
 
     List<String> getChildren(String relativePath);
+
+    String getParent(String path);
 }

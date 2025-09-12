@@ -16,21 +16,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ObjLoader {
-    public static void load(String modelName, String path, IFileProvider fileProvider) {
+    /**
+     * Parse obj model and load to memory
+     * @param modelId Model Identifier, required to locate a model in database.
+     * @param path Path of the model, shouldn include suffix (like .obj)
+     * @param fileProvider To access file
+     */
+    public static void load(ModelIdentifier modelId, String path, IFileProvider fileProvider) {
         LOGGER.info("Loading Obj model: \"{}\"", path);
 //        LOGGER.debug("File Provider: " + fileProvider.getClass());
 
-        Optional<InputStream> inputStreamOptional = fileProvider.openFile(path);
-        if (inputStreamOptional.isPresent()) {
-            InputStream inputStream = inputStreamOptional.get();
+        Optional<InputStream> objStreamOptional = fileProvider.openFile(path + ".obj");
+        if (objStreamOptional.isPresent()) {
+            InputStream objStream = objStreamOptional.get();
             try {
-                byte[] bytes = inputStream.readAllBytes();
-                final String modelString = new String(bytes, StandardCharsets.UTF_8);
-//                LOGGER.debug("Resource: " + modelString);
+                String rootDir = fileProvider.getParent(path);
+                final String objString = new String(objStream.readAllBytes(), StandardCharsets.UTF_8);
+
                 String thisGroup = "";
                 String thisMtl = "";
-//                Map<String, List<Face>> facesCache = new HashMap<>();
-//                Map<String, List<Vertex>> verticesCache = new HashMap<>();
 
                 Set<String> groupNames = new HashSet<>();
                 List<Vector3d> positions = new ArrayList<>();
@@ -40,13 +44,26 @@ public class ObjLoader {
                 Map<String, Map<String, List<Vector3i[]>>> faceCache = new HashMap<>();
 
                 // Pre-processing, load vertices data...
-                for (String line : modelString.lines().toList()) {
+                for (String line : objString.lines().toList()) {
                     String[] tokens = line.split(" ");
                     switch (tokens[0]) {
-                        case "usemtl": {
-                            if (!Objects.equals(thisMtl, tokens[1])) {
-                                System.out.println("Material changed: " + tokens[1]);
+                        case "mtllib": {
+                            Optional<InputStream> mtlOptional = fileProvider.openFile(rootDir + "/" + tokens[1]);
+                            if (mtlOptional.isPresent()) {
+                                InputStream mtlStream = mtlOptional.get();
+                                final String mtlString = new String(mtlStream.readAllBytes(), StandardCharsets.UTF_8);
+                                System.out.println(mtlString);
+                            } else {
+                                LOGGER.error("Mtl not found: {}", path + ", loading process interrupted!");
+                                return;
                             }
+                            System.out.println(rootDir + "/" + tokens[1]);
+                            break;
+                        }
+                        case "usemtl": {
+//                            if (!Objects.equals(thisMtl, tokens[1])) {
+//                                System.out.println("Material changed: " + tokens[1]);
+//                            }
                             thisMtl = tokens[1];
                             break;
                         }
@@ -61,18 +78,12 @@ public class ObjLoader {
                             double y = Double.parseDouble(tokens[2]);
                             double z = Double.parseDouble(tokens[2]);
                             positions.add(new Vector3d(x, y, z));
-//                            List<Vector3d> positions = positionCache.getOrDefault(thisGroup, new ArrayList<>());
-//                            positions.add(new Vector3d(x, y, z));
-//                            positionCache.put(thisGroup, positions);
                             break;
                         }
                         case "vt": {
                             double u = Double.parseDouble(tokens[1]);
                             double v = Double.parseDouble(tokens[2]);
                             uvs.add(new Vector2d(u, v));
-//                            List<Vector2d> uvs = uvCache.getOrDefault(thisGroup, new ArrayList<>());
-//                            uvs.add(new Vector2d(u, v));
-//                            uvCache.put(thisGroup, uvs);
                             break;
                         }
                         case "vn": {
@@ -80,9 +91,6 @@ public class ObjLoader {
                             double y = Double.parseDouble(tokens[2]);
                             double z = Double.parseDouble(tokens[2]);
                             normals.add(new Vector3d(x, y, z));
-//                            List<Vector3d> normals = uv.getOrDefault(thisGroup, new ArrayList<>());
-//                            normals.add(new Vector3d(x, y, z));
-//                            uv.put(thisGroup, normals);
                             break;
                         }
                         case "f": {
@@ -95,7 +103,6 @@ public class ObjLoader {
                                 int y = Integer.parseInt(indexTokens[1]);
                                 int z = Integer.parseInt(indexTokens[2]);
                                 indices[i] = new Vector3i(x, y, z);
-//                                System.out.println(indices[i].x + " / " + indices[i].y + " / " + indices[i].z);
                             }
 
                             Map<String, List<Vector3i[]>> materials = faceCache.getOrDefault(thisGroup, new HashMap<>());
@@ -131,9 +138,7 @@ public class ObjLoader {
                             faces.add(new Face(verticesInFace));
                         }
                         // TODO: Load model to memory
-                        saveModel();
-                        System.out.println(groupName + ": " + mtl);
-                        groups.put(groupName, new LocalModel(faces, null));
+                        saveModel(modelId, groupName, faces, mtl, fileProvider);
                     }
                 }
             } catch (IOException e) {
@@ -145,6 +150,7 @@ public class ObjLoader {
         }
     }
 
-    private static void saveModel(String modelName, List<Face> faces, String materialName, IFileProvider fileProvider) {
+    private static void saveModel(ModelIdentifier modelId, String groupName, List<Face> faces, String materialName, IFileProvider fileProvider) {
+        LOGGER.info("Save to Memory: {}${}&{}", modelId, groupName, materialName);
     }
 }

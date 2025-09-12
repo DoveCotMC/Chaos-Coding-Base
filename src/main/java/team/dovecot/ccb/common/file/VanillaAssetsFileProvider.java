@@ -55,4 +55,9 @@ public class VanillaAssetsFileProvider implements IFileProvider {
 //        return names;
         throw new RuntimeException("Sorry this function is still under construction =3=");
     }
+
+    @Override
+    public String getParent(String path) {
+        return path.substring(0, path.replace("\\", "/").lastIndexOf("/"));
+    }
 }

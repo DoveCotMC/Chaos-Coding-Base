@@ -2,10 +2,7 @@ package team.dovecot.ccb.common.file;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -54,5 +51,10 @@ public class SystemFileProvider implements IFileProvider {
         }
 
         return names;
+    }
+
+    @Override
+    public String getParent(String path) {
+        return getFile(path).getParentFile().getPath();
     }
 }
