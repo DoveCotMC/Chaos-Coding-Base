@@ -26,7 +26,7 @@ public class ObjLoader {
         LOGGER.info("Loading Obj model: \"{}\"", path);
 //        LOGGER.debug("File Provider: " + fileProvider.getClass());
 
-        Optional<InputStream> objStreamOptional = fileProvider.openFile(path + ".obj");
+        Optional<InputStream> objStreamOptional = fileProvider.openFile(path);
         if (objStreamOptional.isPresent()) {
             InputStream objStream = objStreamOptional.get();
             try {
