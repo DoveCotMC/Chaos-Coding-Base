@@ -2,7 +2,12 @@ package team.dovecot.ccb.client.renderer.model;
 
 import static team.dovecot.ccb.common.ChaosBase.*;
 
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.SimpleTexture;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -43,6 +48,9 @@ public class ObjLoader {
                 // Group name, Material, Index
                 Map<String, Map<String, List<Vector3i[]>>> faceCache = new HashMap<>();
 
+                // Materials
+                Map<String, AbstractTexture> mtls = new HashMap<>();
+
                 // Pre-processing, load vertices data...
                 for (String line : objString.lines().toList()) {
                     String[] tokens = line.split(" ");
@@ -52,7 +60,48 @@ public class ObjLoader {
                             if (mtlOptional.isPresent()) {
                                 InputStream mtlStream = mtlOptional.get();
                                 final String mtlString = new String(mtlStream.readAllBytes(), StandardCharsets.UTF_8);
-                                System.out.println(mtlString);
+                                // Parse mtl and load texture
+                                String currentMaterial = "";
+                                for (String mtlLine : mtlString.lines().toList()) {
+                                    String[] mtlTokens = mtlLine.split(" ");
+                                    switch (mtlTokens[0]) {
+                                        case "newmtl": {
+                                            currentMaterial = mtlTokens[1];
+                                            break;
+                                        }
+                                        case "map_Kd": {
+                                            String mapName = mtlTokens[1];
+                                            if (!mapName.endsWith(".png")) {
+                                                LOGGER.error("Unknown texture format: " + mapName.substring(0, mapName.lastIndexOf(".")));
+                                                break;
+                                            }
+//                                            new SimpleTexture();
+                                            // TODO: Load texture
+                                            Optional<InputStream> imageOptional = fileProvider.openFile(rootDir + "/" + mapName);
+
+                                            if (imageOptional.isEmpty()) {
+                                                LOGGER.error("Texture not found: " + rootDir + "/" + mapName);
+                                                break;
+                                            }
+
+                                            InputStream imageStream = imageOptional.get();
+                                            try(NativeImage nativeImage = NativeImage.read(imageStream.readAllBytes())) {
+                                                // Load to memory
+                                                if (!RenderSystem.isOnRenderThreadOrInit()) {
+//                                                    RenderSystem.recordRenderCall(() -> this.doLoad(nativeImage, bl, bl2));
+                                                } else {
+//                                                    TextureUtil.prepareImage(TextureUtil.generateTextureId(), 0);
+//                                                    this.doLoad(nativeImage, bl, bl2);
+                                                }
+                                            }
+
+                                            break;
+                                        }
+                                        default: {
+                                            LOGGER.warn("Unknown Token when parsing mtl file: " + mtlTokens[0]);
+                                        }
+                                    }
+                                }
                             } else {
                                 LOGGER.error("Mtl not found: {}", path + ", loading process interrupted!");
                                 return;
