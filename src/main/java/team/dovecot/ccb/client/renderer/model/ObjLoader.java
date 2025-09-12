@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ObjLoader {
-    public static void load(String path, IFileProvider fileProvider) {
+    public static void load(String modelName, String path, IFileProvider fileProvider) {
         LOGGER.info("Loading Obj model: \"{}\"", path);
 //        LOGGER.debug("File Provider: " + fileProvider.getClass());
 
@@ -131,6 +131,7 @@ public class ObjLoader {
                             faces.add(new Face(verticesInFace));
                         }
                         // TODO: Load model to memory
+                        saveModel();
                         System.out.println(groupName + ": " + mtl);
                         groups.put(groupName, new LocalModel(faces, null));
                     }
@@ -142,5 +143,8 @@ public class ObjLoader {
         } else {
             LOGGER.error("Model not found: {}", path);
         }
+    }
+
+    private static void saveModel(String modelName, List<Face> faces, String materialName, IFileProvider fileProvider) {
     }
 }
