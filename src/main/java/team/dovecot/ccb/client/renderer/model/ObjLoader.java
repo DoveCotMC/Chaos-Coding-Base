@@ -79,9 +79,8 @@ public class ObjLoader {
                                             }
 
                                             InputStream imageStream = imageOptional.get();
-                                            TextureManager.getInstance().uploadModel(modelId, imageStream.readAllBytes());
+                                            TextureManager.getInstance().uploadModel(modelId.join(currentMaterial), imageStream.readAllBytes());
                                             mtls.put(mapName, modelId.join(currentMaterial));
-
                                         }
                                         default -> {
                                             LOGGER.warn("Unknown Token when parsing mtl file: " + mtlTokens[0]);
@@ -173,7 +172,7 @@ public class ObjLoader {
                             faces.add(new Face(verticesInFace));
                         }
                         // TODO: Load model to memory
-                        saveModel(modelId, groupName, faces, mtl, fileProvider);
+                        uploadModel(modelId, groupName, faces, mtl, fileProvider);
                     }
                 }
             } catch (IOException e) {
@@ -185,7 +184,7 @@ public class ObjLoader {
         }
     }
 
-    private static void saveModel(ResourceIdentifier modelId, String groupName, List<Face> faces, String materialName, IFileProvider fileProvider) {
+    private static void uploadModel(ResourceIdentifier modelId, String groupName, List<Face> faces, String materialName, IFileProvider fileProvider) {
         LOGGER.info("Save to Memory: {}${}&{}", modelId, groupName, materialName);
     }
 }
