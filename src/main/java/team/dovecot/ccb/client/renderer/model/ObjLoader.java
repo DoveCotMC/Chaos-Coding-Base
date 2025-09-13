@@ -2,15 +2,10 @@ package team.dovecot.ccb.client.renderer.model;
 
 import static team.dovecot.ccb.common.ChaosBase.*;
 
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.SimpleTexture;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
+import team.dovecot.ccb.client.renderer.TextureManager;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
 import team.dovecot.ccb.common.file.IFileProvider;
@@ -27,7 +22,7 @@ public class ObjLoader {
      * @param path Path of the model, shouldn include suffix (like .obj)
      * @param fileProvider To access file
      */
-    public static void load(ModelIdentifier modelId, String path, IFileProvider fileProvider) {
+    public static void load(ResourceIdentifier modelId, String path, IFileProvider fileProvider) {
         LOGGER.info("Loading Obj model: \"{}\"", path);
 //        LOGGER.debug("File Provider: " + fileProvider.getClass());
 
@@ -49,7 +44,7 @@ public class ObjLoader {
                 Map<String, Map<String, List<Vector3i[]>>> faceCache = new HashMap<>();
 
                 // Materials
-                Map<String, AbstractTexture> mtls = new HashMap<>();
+                Map<String, ResourceIdentifier> mtls = new HashMap<>();
 
                 // Pre-processing, load vertices data...
                 for (String line : objString.lines().toList()) {
@@ -65,11 +60,10 @@ public class ObjLoader {
                                 for (String mtlLine : mtlString.lines().toList()) {
                                     String[] mtlTokens = mtlLine.split(" ");
                                     switch (mtlTokens[0]) {
-                                        case "newmtl": {
+                                        case "newmtl" -> {
                                             currentMaterial = mtlTokens[1];
-                                            break;
                                         }
-                                        case "map_Kd": {
+                                        case "map_Kd" -> {
                                             String mapName = mtlTokens[1];
                                             if (!mapName.endsWith(".png")) {
                                                 LOGGER.error("Unknown texture format: " + mapName.substring(0, mapName.lastIndexOf(".")));
@@ -85,19 +79,11 @@ public class ObjLoader {
                                             }
 
                                             InputStream imageStream = imageOptional.get();
-                                            try(NativeImage nativeImage = NativeImage.read(imageStream.readAllBytes())) {
-                                                // Load to memory
-                                                if (!RenderSystem.isOnRenderThreadOrInit()) {
-//                                                    RenderSystem.recordRenderCall(() -> this.doLoad(nativeImage, bl, bl2));
-                                                } else {
-//                                                    TextureUtil.prepareImage(TextureUtil.generateTextureId(), 0);
-//                                                    this.doLoad(nativeImage, bl, bl2);
-                                                }
-                                            }
+                                            TextureManager.getInstance().uploadModel(modelId, imageStream.readAllBytes());
+                                            mtls.put(mapName, modelId.join(currentMaterial));
 
-                                            break;
                                         }
-                                        default: {
+                                        default -> {
                                             LOGGER.warn("Unknown Token when parsing mtl file: " + mtlTokens[0]);
                                         }
                                     }
@@ -199,7 +185,7 @@ public class ObjLoader {
         }
     }
 
-    private static void saveModel(ModelIdentifier modelId, String groupName, List<Face> faces, String materialName, IFileProvider fileProvider) {
+    private static void saveModel(ResourceIdentifier modelId, String groupName, List<Face> faces, String materialName, IFileProvider fileProvider) {
         LOGGER.info("Save to Memory: {}${}&{}", modelId, groupName, materialName);
     }
 }

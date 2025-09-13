@@ -9,8 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import team.dovecot.ccb.client.block.entity.BlockEntityRendererTest;
-import team.dovecot.ccb.client.renderer.Renderer;
-import team.dovecot.ccb.client.renderer.model.ModelIdentifier;
+import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
 import team.dovecot.ccb.client.renderer.model.ObjLoader;
 import team.dovecot.ccb.common.ChaosBase;
 import team.dovecot.ccb.common.block.CCBBlocks;
@@ -37,7 +36,7 @@ public class ChaosBaseClient implements ClientModInitializer {
                     BlockEntityRendererTest.simpleTexture.load(resourceManager);
 
                     // Obj Loader TEST!!!
-                    ObjLoader.load(new ModelIdentifier(ChaosBase.MOD_ID, "utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
+                    ObjLoader.load(new ResourceIdentifier(ChaosBase.MOD_ID, "utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
