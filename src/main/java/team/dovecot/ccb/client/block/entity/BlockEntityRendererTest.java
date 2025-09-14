@@ -15,6 +15,10 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
+import team.dovecot.ccb.client.renderer.Renderer;
+import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
+import team.dovecot.ccb.client.renderer.model.UploadedModel;
+import team.dovecot.ccb.common.ChaosBase;
 import team.dovecot.ccb.common.block.entity.BlockEntityTest;
 
 public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityTest> {
@@ -29,22 +33,27 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
         RenderSystem.enableCull();
 
-        BufferBuilder builder = tesselator.getBuilder();
+        UploadedModel model = Renderer.getInstance().getModel(new ResourceIdentifier(ChaosBase.MOD_ID, "utah_teapot"));
+        if (model != null) {
+            model.drawWithShader();
+        }
+
+//        BufferBuilder builder = tesselator.getBuilder();
 
 //        NativeImage nativeImage = NativeImage.read();
 //        Minecraft.getInstance().getTextureManager().preload()
 
-        poseStack.pushPose();
-        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR_TEX);
-        builder.vertex(poseStack.last().pose(), 0, 0, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).endVertex();
-        builder.vertex(poseStack.last().pose(), 1, 0, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).endVertex();
-        builder.vertex(poseStack.last().pose(), 0.5f, 1, 0).color(1f, 1f, 1f, 1f).uv(0.5f, 1f).endVertex();
-//        builder.vertex(0, 0, 0).color(1f, 0f, 0f, 1f).endVertex();
-//        builder.vertex(1, 0, 0).color(0f, 1f, 0f, 1f).endVertex();
-//        builder.vertex(1, 1, 0).color(0f, 0f, 1f, 1f).endVertex();
-        RenderSystem.setShaderTexture(0, simpleTexture.getId());
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+//        poseStack.pushPose();
+//        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR_TEX);
+//        builder.vertex(poseStack.last().pose(), 0, 0, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).endVertex();
+//        builder.vertex(poseStack.last().pose(), 1, 0, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).endVertex();
+//        builder.vertex(poseStack.last().pose(), 0.5f, 1, 0).color(1f, 1f, 1f, 1f).uv(0.5f, 1f).endVertex();
+////        builder.vertex(0, 0, 0).color(1f, 0f, 0f, 1f).endVertex();
+////        builder.vertex(1, 0, 0).color(0f, 1f, 0f, 1f).endVertex();
+////        builder.vertex(1, 1, 0).color(0f, 0f, 1f, 1f).endVertex();
+//        RenderSystem.setShaderTexture(0, simpleTexture.getId());
+//        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         tesselator.end();
-        poseStack.popPose();
+//        poseStack.popPose();
     }
 }

@@ -1,9 +1,12 @@
 package team.dovecot.ccb.client.renderer.model;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import org.joml.Matrix4f;
 
 // TODO: Currently just wrapping VertexBuffer...
 public class UploadedModel {
@@ -36,5 +39,17 @@ public class UploadedModel {
         this.buffer.bind();
         this.buffer.close();
         this.texture.releaseId();
+    }
+
+    public void drawWithShader() {
+        this.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+    }
+
+    public void drawWithShader(ShaderInstance shaderInstance) {
+        this.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shaderInstance);
+    }
+
+    public void drawWithShader(Matrix4f modelViewMatrix, Matrix4f projectionMatrix, ShaderInstance shaderInstance) {
+        this.buffer.drawWithShader(modelViewMatrix, projectionMatrix, shaderInstance);
     }
 }

@@ -1,5 +1,6 @@
 package team.dovecot.ccb.client.renderer;
 
+import org.jetbrains.annotations.Nullable;
 import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
 import team.dovecot.ccb.client.renderer.model.UploadedModel;
 
@@ -19,6 +20,11 @@ public class Renderer {
             instance = new Renderer();
 
         return instance;
+    }
+
+    @Nullable
+    public UploadedModel getModel(ResourceIdentifier identifier) {
+        return loadedModels.get(identifier);
     }
 
     private void releaseResources() {
