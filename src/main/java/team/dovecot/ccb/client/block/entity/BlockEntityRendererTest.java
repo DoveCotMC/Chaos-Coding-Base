@@ -33,6 +33,7 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
         RenderSystem.enableCull();
 
+        // TODO: I need a new model format ToT
         UploadedModel model = Renderer.getInstance().getModel(new ResourceIdentifier(ChaosBase.MOD_ID, "utah_teapot"));
         if (model != null) {
             model.drawWithShader();
