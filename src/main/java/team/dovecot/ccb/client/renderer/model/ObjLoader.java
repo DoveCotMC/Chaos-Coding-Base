@@ -19,10 +19,11 @@ public class ObjLoader {
     /**
      * Parse obj model and load to memory
      * @param modelId Model Identifier, required to locate a model in database.
-     * @param path Path of the model, shouldn include suffix (like .obj)
+     * @param path Path of the model, must include suffix (like .obj)
      * @param fileProvider To access file
      */
     public static void load(ResourceIdentifier modelId, String path, IFileProvider fileProvider) {
+        // TODO: Re-construct required due to new model format
         LOGGER.info("Loading Obj model: \"{}\"", path);
 //        LOGGER.debug("File Provider: " + fileProvider.getClass());
 
