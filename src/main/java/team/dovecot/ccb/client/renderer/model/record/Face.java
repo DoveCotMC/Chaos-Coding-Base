@@ -4,24 +4,24 @@ import java.util.List;
 import java.util.Objects;
 
 public final class Face {
-    private final List<Vertex> vertices;
+    private final List<Integer> verticesIndex;
 
-    public Face(List<Vertex> vertices) {
-        this.vertices = vertices;
+    public Face(List<Integer> verticesIndex) {
+        this.verticesIndex = verticesIndex;
     }
 
-    public List<Vertex> vertices() {
-        return vertices;
+    public List<Integer> verticesIndex() {
+        return verticesIndex;
     }
 
     public int numVertices() {
-        return vertices.size();
+        return verticesIndex.size();
     }
 
     @Override
     public String toString() {
         return "Face{" +
-                "vertices=" + vertices +
+                "verticesIndex=" + verticesIndex +
                 '}';
     }
 }

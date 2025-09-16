@@ -95,19 +95,19 @@ public class ObjLoader {
                             System.out.println(rootDir + "/" + tokens[1]);
                             break;
                         }
-                        case "usemtl": {
-//                            if (!Objects.equals(thisMtl, tokens[1])) {
-//                                System.out.println("Material changed: " + tokens[1]);
-//                            }
-                            thisMtl = tokens[1];
-                            break;
-                        }
-                        case "g":
-                        case "o": {
-                            thisGroup = tokens[1];
-                            groupNames.add(thisGroup);
-                            break;
-                        }
+//                        case "usemtl": {
+////                            if (!Objects.equals(thisMtl, tokens[1])) {
+////                                System.out.println("Material changed: " + tokens[1]);
+////                            }
+//                            thisMtl = tokens[1];
+//                            break;
+//                        }
+//                        case "g":
+//                        case "o": {
+//                            thisGroup = tokens[1];
+//                            groupNames.add(thisGroup);
+//                            break;
+//                        }
                         case "v": {
                             double x = Double.parseDouble(tokens[1]);
                             double y = Double.parseDouble(tokens[2]);
@@ -128,54 +128,57 @@ public class ObjLoader {
                             normals.add(new Vector3d(x, y, z));
                             break;
                         }
-                        case "f": {
-                            int count = tokens.length - 1;
-                            Vector3i[] indices = new Vector3i[count];
-
-                            for (int i = 0; i < count; i++) {
-                                String[] indexTokens = tokens[i + 1].split("/");
-                                int x = Integer.parseInt(indexTokens[0]);
-                                int y = Integer.parseInt(indexTokens[1]);
-                                int z = Integer.parseInt(indexTokens[2]);
-                                indices[i] = new Vector3i(x, y, z);
-                            }
-
-                            Map<String, List<Vector3i[]>> materials = faceCache.getOrDefault(thisGroup, new HashMap<>());
-                            List<Vector3i[]> faces = materials.getOrDefault(thisMtl, new ArrayList<>());
-                            faces.add(indices);
-                            materials.put(thisMtl, faces);
-                            faceCache.put(thisGroup, materials);
-                            break;
-                        }
+//                        case "f": {
+//                            int count = tokens.length - 1;
+//                            Vector3i[] indices = new Vector3i[count];
+//
+//                            for (int i = 0; i < count; i++) {
+//                                String[] indexTokens = tokens[i + 1].split("/");
+//                                int x = Integer.parseInt(indexTokens[0]);
+//                                int y = Integer.parseInt(indexTokens[1]);
+//                                int z = Integer.parseInt(indexTokens[2]);
+//                                indices[i] = new Vector3i(x, y, z);
+//                            }
+//
+//                            Map<String, List<Vector3i[]>> materials = faceCache.getOrDefault(thisGroup, new HashMap<>());
+//                            List<Vector3i[]> faces = materials.getOrDefault(thisMtl, new ArrayList<>());
+//                            faces.add(indices);
+//                            materials.put(thisMtl, faces);
+//                            faceCache.put(thisGroup, materials);
+//                            break;
+//                        }
                     }
                 }
 
                 // Converting to Local model
                 // Group name, Raw Model
-                Map<String, LocalModel> groups = new HashMap<>();
-                for (String groupName : groupNames) {
-                    for (Map.Entry<String, List<Vector3i[]>> entry : faceCache.get(groupName).entrySet()) {
-                        String mtl = entry.getKey();
-                        List<Vector3i[]> faceIndices = entry.getValue();
-                        List<Face> faces = new ArrayList<>();
-                        for (Vector3i[] vertices : faceIndices) {
-                            List<Vertex> verticesInFace = new ArrayList<>();
-                            for (Vector3i vertexIndex : vertices) {
-                                int faceIndex = vertexIndex.x - 1;
-                                int uvIndex = vertexIndex.y - 1;
-                                int normalIndex = vertexIndex.z - 1;
-                                verticesInFace.add(new Vertex(
-                                        new Vector3d(positions.get(faceIndex)),
-                                        new Vector3d(normals.get(normalIndex)),
-                                        new Vector2d(uvs.get(uvIndex))
-                                ));
-                            }
-                            faces.add(new Face(verticesInFace));
-                        }
-                        // TODO: Load model to memory
-                        uploadModel(modelId, groupName, faces, mtl, fileProvider);
-                    }
-                }
+//                Map<String, LocalModel> groups = new HashMap<>();
+//                for (String groupName : groupNames) {
+//                    for (Map.Entry<String, List<Vector3i[]>> entry : faceCache.get(groupName).entrySet()) {
+//                        String mtl = entry.getKey();
+//                        List<Vector3i[]> faceIndices = entry.getValue();
+//                        List<Face> faces = new ArrayList<>();
+//                        for (Vector3i[] vertices : faceIndices) {
+//                            List<Vertex> verticesInFace = new ArrayList<>();
+//                            for (Vector3i vertexIndex : vertices) {
+//                                int faceIndex = vertexIndex.x - 1;
+//                                int uvIndex = vertexIndex.y - 1;
+//                                int normalIndex = vertexIndex.z - 1;
+//                                verticesInFace.add(new Vertex(
+//                                        new Vector3d(positions.get(faceIndex)),
+//                                        new Vector3d(normals.get(normalIndex)),
+//                                        new Vector2d(uvs.get(uvIndex))
+//                                ));
+//                            }
+//                            faces.add(new Face(verticesInFace));
+//                        }
+//                        // TODO: Load model to memory
+//                        uploadModel(modelId, groupName, faces, mtl, fileProvider);
+//                    }
+//                }
+
+
+                // Second iteration, build up faces and groups
             } catch (IOException e) {
                 LOGGER.error("Unable to read model: {}", path);
                 e.printStackTrace();
