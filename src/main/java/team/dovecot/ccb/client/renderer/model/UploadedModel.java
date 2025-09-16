@@ -35,7 +35,8 @@ public class UploadedModel {
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
         vertexBuffer.upload(renderedBuffer);
 
-        return new UploadedModel(vertexBuffer, null, new ArrayList<>());
+        return null;
+//        return new UploadedModel(vertexBuffer, null, new ArrayList<>());
     }
 
     public void release() {
