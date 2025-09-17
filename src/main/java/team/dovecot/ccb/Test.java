@@ -10,7 +10,7 @@ import java.io.File;
 public class Test {
     public static void main(String[] args) {
         SystemFileProvider fileProvider = new SystemFileProvider(new File("./src/main/resources/assets/ccb/"));
-//        ObjLoader.load(new ResourceIdentifier("ccb", "utah_teapot"), "model/teapot/teapot.obj", fileProvider);
-        BlockBenchLoader.load(new ResourceIdentifier("ccb", "utah_teapot"), "model/teapot/teapot.bbmodel", fileProvider);
+        ObjLoader.load(new ResourceIdentifier("ccb", "utah_teapot"), "model/teapot/teapot.obj", fileProvider);
+//        BlockBenchLoader.load(new ResourceIdentifier("ccb", "utah_teapot"), "model/teapot/teapot.bbmodel", fileProvider);
     }
 }

@@ -34,10 +34,6 @@ public class ObjLoader {
                 String rootDir = fileProvider.getParent(path);
                 final String objString = new String(objStream.readAllBytes(), StandardCharsets.UTF_8);
 
-                String thisGroup = "";
-                String thisMtl = "";
-
-                Set<String> groupNames = new HashSet<>();
                 List<Vector3d> positions = new ArrayList<>();
                 List<Vector3d> normals = new ArrayList<>();
                 List<Vector2d> uvs = new ArrayList<>();
@@ -48,7 +44,8 @@ public class ObjLoader {
                 Map<String, ResourceIdentifier> mtls = new HashMap<>();
 
                 // Pre-processing, load vertices data...
-                for (String line : objString.lines().toList()) {
+                List<String> lines = objString.lines().toList();
+                for (String line : lines) {
                     String[] tokens = line.split(" ");
                     switch (tokens[0]) {
                         case "mtllib": {
@@ -95,19 +92,6 @@ public class ObjLoader {
                             System.out.println(rootDir + "/" + tokens[1]);
                             break;
                         }
-//                        case "usemtl": {
-////                            if (!Objects.equals(thisMtl, tokens[1])) {
-////                                System.out.println("Material changed: " + tokens[1]);
-////                            }
-//                            thisMtl = tokens[1];
-//                            break;
-//                        }
-//                        case "g":
-//                        case "o": {
-//                            thisGroup = tokens[1];
-//                            groupNames.add(thisGroup);
-//                            break;
-//                        }
                         case "v": {
                             double x = Double.parseDouble(tokens[1]);
                             double y = Double.parseDouble(tokens[2]);
@@ -147,6 +131,36 @@ public class ObjLoader {
 //                            faceCache.put(thisGroup, materials);
 //                            break;
 //                        }
+                    }
+                }
+
+                String thisGroup = "";
+                String thisMtl = "";
+                Set<String> groupNames = new HashSet<>();
+
+                // Second iteration, resolve faces
+                for (String line : lines) {
+                    String[] tokens = line.split(" ");
+                    switch (tokens[0]) {
+                        case "g":
+                        case "o": {
+                            thisGroup = tokens[1];
+                            groupNames.add(thisGroup);
+                            System.out.println("Group: " + thisGroup);
+                            break;
+                        }
+                        case "usemtl": {
+//                            if (!Objects.equals(thisMtl, tokens[1])) {
+//                                System.out.println("Material changed: " + tokens[1]);
+//                            }
+                            thisMtl = tokens[1];
+                            System.out.println("Mtl: " + thisMtl);
+                            break;
+                        }
+                        case "f": {
+                            System.out.println(line);
+                            break;
+                        }
                     }
                 }
 
