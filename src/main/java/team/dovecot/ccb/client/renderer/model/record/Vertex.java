@@ -7,33 +7,33 @@ import java.util.Objects;
 
 public final class Vertex {
     private final Vector3d pos;
-    private final Vector3d normal;
     private final Vector2d uv;
+    private final Vector3d normal;
 
-    public Vertex(Vector3d pos, Vector3d normal, Vector2d uv) {
+    public Vertex(Vector3d pos, Vector2d uv, Vector3d normal) {
         this.pos = pos;
-        this.normal = normal;
         this.uv = uv;
+        this.normal = normal;
     }
 
     public Vector3d pos() {
         return pos;
     }
 
-    public Vector3d normal() {
-        return normal;
-    }
-
     public Vector2d uv() {
         return uv;
+    }
+
+    public Vector3d normal() {
+        return normal;
     }
 
     @Override
     public String toString() {
         return "Vertex{" +
                 "pos=" + pos +
-                ", normal=" + normal +
                 ", uv=" + uv +
+                ", normal=" + normal +
                 '}';
     }
 }

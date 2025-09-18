@@ -136,7 +136,7 @@ public class ObjLoader {
                 String thisGroup = "";
                 String thisMtl = "";
                 Set<String> groupNames = new HashSet<>();
-                Map<String, Map<String, List<List<Integer>>>> faceIndices = new HashMap<>();
+                Map<String, Map<String, List<List<List<Integer>>>>> faceIndices = new HashMap<>();
 
                 // Second iteration, resolve faces
                 for (String line : lines) {
@@ -158,13 +158,15 @@ public class ObjLoader {
                             break;
                         }
                         case "f": {
-                            Map<String, List<List<Integer>>> idkMap = faceIndices.getOrDefault(thisGroup, new HashMap<>());
-                            List<List<Integer>> indices = idkMap.getOrDefault(thisMtl, new ArrayList<>());
+                            Map<String, List<List<List<Integer>>>> idkMap = faceIndices.getOrDefault(thisGroup, new HashMap<>());
+                            List<List<List<Integer>>> indices = idkMap.getOrDefault(thisMtl, new ArrayList<>());
+                            List<List<Integer>> face = new ArrayList<>();
                             for (int i = 1; i < tokens.length; i++) {
                                 int[] indicesArray = splitVertexIndexString(tokens[i]);
                                 List<Integer> index = List.of(indicesArray[0], indicesArray[1], indicesArray[2]);
-                                indices.add(index);
+                                face.add(index);
                             }
+                            indices.add(face);
                             idkMap.put(thisMtl, indices);
                             faceIndices.put(thisGroup, idkMap);
                             break;
@@ -172,7 +174,17 @@ public class ObjLoader {
                     }
                 }
 
-                LocalModel.parse(positions, uvs, normals, faceIndices);
+                LocalModel.Builder builder = new LocalModel.Builder();
+                for (String group : faceIndices.keySet()) {
+                    Map<String, List<Face>> materialFaces = LocalModel.parseFromRawData(positions, uvs, normals, faceIndices.get(group));
+                    System.out.println(materialFaces);
+                    builder.pushGroup(group);
+                    for (String material : materialFaces.keySet()) {
+                        builder.setMaterial(material);
+                        builder.addFaces(materialFaces.get(material));
+                    }
+                    builder.popGroup();
+                }
 
                 // Converting to Local model
                 // Group name, Raw Model
