@@ -1,5 +1,7 @@
 package team.dovecot.ccb.client.renderer.model;
 
+import org.joml.Vector2d;
+import org.joml.Vector3d;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
 
@@ -19,6 +21,13 @@ public class LocalModel {
         this.faces = faces;
         this.texture = texture;
         this.children = children;
+    }
+
+    public static LocalModel parse(List<Vector3d> positions, List<Vector2d> uvs, List<Vector3d> normals, Map<String, Map<String, List<List<Integer>>>> faceIndices) {
+        for (String group : faceIndices.keySet()) {
+            System.out.println(faceIndices.get(group));
+        }
+        return null;
     }
 
     public int getNumFaces() {

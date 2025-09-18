@@ -7,7 +7,6 @@ import org.joml.Vector3d;
 import org.joml.Vector3i;
 import team.dovecot.ccb.client.renderer.TextureManager;
 import team.dovecot.ccb.client.renderer.model.record.Face;
-import team.dovecot.ccb.client.renderer.model.record.Vertex;
 import team.dovecot.ccb.common.file.IFileProvider;
 
 import java.io.IOException;
@@ -137,6 +136,7 @@ public class ObjLoader {
                 String thisGroup = "";
                 String thisMtl = "";
                 Set<String> groupNames = new HashSet<>();
+                Map<String, Map<String, List<List<Integer>>>> faceIndices = new HashMap<>();
 
                 // Second iteration, resolve faces
                 for (String line : lines) {
@@ -158,11 +158,21 @@ public class ObjLoader {
                             break;
                         }
                         case "f": {
-                            System.out.println(line);
+                            Map<String, List<List<Integer>>> idkMap = faceIndices.getOrDefault(thisGroup, new HashMap<>());
+                            List<List<Integer>> indices = idkMap.getOrDefault(thisMtl, new ArrayList<>());
+                            for (int i = 1; i < tokens.length; i++) {
+                                int[] indicesArray = splitVertexIndexString(tokens[i]);
+                                List<Integer> index = List.of(indicesArray[0], indicesArray[1], indicesArray[2]);
+                                indices.add(index);
+                            }
+                            idkMap.put(thisMtl, indices);
+                            faceIndices.put(thisGroup, idkMap);
                             break;
                         }
                     }
                 }
+
+                LocalModel.parse(positions, uvs, normals, faceIndices);
 
                 // Converting to Local model
                 // Group name, Raw Model
@@ -204,5 +214,14 @@ public class ObjLoader {
 
     private static void uploadModel(ResourceIdentifier modelId, String groupName, List<Face> faces, String materialName, IFileProvider fileProvider) {
         LOGGER.info("Save to Memory: {}${}&{}", modelId, groupName, materialName);
+    }
+
+    private static int[] splitVertexIndexString(String string) {
+        String[] tokens = string.split("/");
+        return new int[] {
+            Integer.parseInt(tokens[0]) - 1,
+            Integer.parseInt(tokens[1]) - 1,
+            Integer.parseInt(tokens[2]) - 1
+        };
     }
 }

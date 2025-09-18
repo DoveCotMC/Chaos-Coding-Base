@@ -40,6 +40,9 @@ public class ChaosBaseClient implements ClientModInitializer {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+
+                // TODO: Interrupt
+                System.exit(0);
             }
         });
     }
