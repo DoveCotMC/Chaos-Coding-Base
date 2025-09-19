@@ -6,10 +6,7 @@ import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LocalModel {
     private final Map<String, List<Face>> faces;
@@ -50,23 +47,38 @@ public class LocalModel {
     }
 
     public static class Builder {
-        private final List<String> group;
+        private final String name;
 //        private TODO: How to store faces?
         private String material;
+        private final Map<String, LocalModel> children;
+
+        private final Deque<Builder> stack;
+        private Builder parent;
 
         public Builder() {
-            this.group = new ArrayList<>();
-            this.material = "";
+            this("", null);
         }
 
-        public Builder pushGroup(String group) {
-            this.group.add(group);
-            return this;
+        public Builder(String name, Builder parent) {
+            this.name = name;
+            this.material = "";
+            this.children = new ArrayList<>();
+            this.stack = new ArrayDeque<>();
+            this.parent = parent;
+        }
+
+        public Builder pushGroup(String groupName) {
+            Builder childBuilder = new Builder(groupName, this);
+            stack.push(childBuilder);
+            return childBuilder;
         }
 
         public Builder popGroup() {
-            this.group.remove(this.group.size() - 1);
-            return this;
+            if (this.parent == null)
+                throw new IllegalArgumentException("You are trying to pop a root builder...");
+
+            this.parent.children.put(name, this.build());
+            return this.parent;
         }
 
         public Builder setMaterial(String material) {
@@ -75,6 +87,7 @@ public class LocalModel {
         }
 
         public Builder addFaces(List<Face> faces) {
+            // TODO: Faces ToT
             return this;
         }
 
