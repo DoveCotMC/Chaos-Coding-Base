@@ -2,6 +2,8 @@ package team.dovecot.ccb.client.renderer.model;
 
 import static team.dovecot.ccb.common.ChaosBase.*;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -180,7 +182,8 @@ public class ObjLoader {
                     System.out.println(materialFaces);
                     builder.pushGroup(group);
                     for (String material : materialFaces.keySet()) {
-                        builder.setMaterial(material);
+//                        Minecraft.getInstance().getTextureManager().register();
+                        builder.addMaterial(material, new ResourceLocation("", ""));
                         builder.addFaces(materialFaces.get(material));
                     }
                     builder.popGroup();

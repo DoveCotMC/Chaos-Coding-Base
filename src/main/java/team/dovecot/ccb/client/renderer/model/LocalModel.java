@@ -1,5 +1,7 @@
 package team.dovecot.ccb.client.renderer.model;
 
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 import team.dovecot.ccb.client.renderer.model.record.Face;
@@ -10,6 +12,7 @@ import java.util.*;
 
 public class LocalModel {
     private final Map<String, List<Face>> faces;
+    // TOOD: Vanilla texture manager
     private final Map<String, ByteBuffer> texture;
     private final Map<String, LocalModel> children;
     private final boolean isRoot;
@@ -50,9 +53,11 @@ public class LocalModel {
         private final String name;
 //        private TODO: How to store faces?
         private String material;
-        private final Map<String, LocalModel> children;
+        private final Map<String, Builder> children;
+        private final Map<String, List<Face>> faces;
 
         private final Deque<Builder> stack;
+        @Nullable
         private Builder parent;
 
         public Builder() {
@@ -63,6 +68,7 @@ public class LocalModel {
             this.name = name;
             this.material = "";
             this.children = new HashMap<>();
+            this.faces = new HashMap<>();
             this.stack = new ArrayDeque<>();
             this.parent = parent;
         }
@@ -75,24 +81,32 @@ public class LocalModel {
 
         public Builder popGroup() {
             if (this.parent == null)
-                throw new IllegalArgumentException("You are trying to pop a root builder...");
+                throw new IllegalArgumentException("You are trying to pop root builder...");
 
-            this.parent.children.put(name, this.build());
+            this.parent.children.put(name, this);
             return this.parent;
         }
 
-        public Builder setMaterial(String material) {
+        public Builder addMaterial(String material, ResourceLocation texture) {
             this.material = material;
             return this;
         }
 
         public Builder addFaces(List<Face> faces) {
             // TODO: Faces ToT
+            this.faces.put(material, faces);
             return this;
         }
 
         public LocalModel build() {
-            return new LocalModel(new HashMap<>());
+            Map<String, LocalModel> children = new HashMap<>();
+            for (Map.Entry<String, Builder> entry : this.children.entrySet()) {
+                String groupName = entry.getKey();
+                Builder builder = entry.getValue();
+                children.put(groupName, builder.build());
+            }
+
+            return new LocalModel(faces, new HashMap<>(), children, parent == null);
         }
     }
 }
