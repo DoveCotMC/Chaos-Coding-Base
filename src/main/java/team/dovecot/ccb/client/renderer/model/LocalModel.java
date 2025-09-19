@@ -12,7 +12,7 @@ import java.util.*;
 
 public class LocalModel {
     private final Map<String, List<Face>> faces;
-    // TOOD: Vanilla texture manager
+    // TODO: Vanilla texture manager
     private final Map<String, ByteBuffer> texture;
     private final Map<String, LocalModel> children;
     private final boolean isRoot;
