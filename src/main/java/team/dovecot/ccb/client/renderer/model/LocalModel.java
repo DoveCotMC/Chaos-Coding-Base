@@ -93,7 +93,6 @@ public class LocalModel {
         }
 
         public Builder addFaces(List<Face> faces) {
-            // TODO: Faces ToT
             this.faces.put(material, faces);
             return this;
         }
