@@ -62,7 +62,7 @@ public class LocalModel {
         public Builder(String name, Builder parent) {
             this.name = name;
             this.material = "";
-            this.children = new ArrayList<>();
+            this.children = new HashMap<>();
             this.stack = new ArrayDeque<>();
             this.parent = parent;
         }
