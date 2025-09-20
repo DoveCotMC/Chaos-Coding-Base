@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2d;
-import org.joml.Vector3d;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
 import team.dovecot.ccb.client.renderer.TextureManager;
 import team.dovecot.ccb.client.renderer.model.record.Face;
@@ -40,9 +40,9 @@ public class ObjLoader {
                 String rootDir = fileProvider.getParent(path);
                 final String objString = new String(objStream.readAllBytes(), StandardCharsets.UTF_8);
 
-                List<Vector3d> positions = new ArrayList<>();
-                List<Vector3d> normals = new ArrayList<>();
-                List<Vector2d> uvs = new ArrayList<>();
+                List<Vector3f> positions = new ArrayList<>();
+                List<Vector3f> normals = new ArrayList<>();
+                List<Vector2f> uvs = new ArrayList<>();
                 // Group name, Material, Index
                 Map<String, Map<String, List<Vector3i[]>>> faceCache = new HashMap<>();
 
@@ -106,23 +106,23 @@ public class ObjLoader {
                             break;
                         }
                         case "v": {
-                            double x = Double.parseDouble(tokens[1]);
-                            double y = Double.parseDouble(tokens[2]);
-                            double z = Double.parseDouble(tokens[2]);
-                            positions.add(new Vector3d(x, y, z));
+                            float x = Float.parseFloat(tokens[1]);
+                            float y = Float.parseFloat(tokens[2]);
+                            float z = Float.parseFloat(tokens[2]);
+                            positions.add(new Vector3f(x, y, z));
                             break;
                         }
                         case "vt": {
-                            double u = Double.parseDouble(tokens[1]);
-                            double v = Double.parseDouble(tokens[2]);
-                            uvs.add(new Vector2d(u, v));
+                            float u = Float.parseFloat(tokens[1]);
+                            float v = Float.parseFloat(tokens[2]);
+                            uvs.add(new Vector2f(u, v));
                             break;
                         }
                         case "vn": {
-                            double x = Double.parseDouble(tokens[1]);
-                            double y = Double.parseDouble(tokens[2]);
-                            double z = Double.parseDouble(tokens[2]);
-                            normals.add(new Vector3d(x, y, z));
+                            float x = Float.parseFloat(tokens[1]);
+                            float y = Float.parseFloat(tokens[2]);
+                            float z = Float.parseFloat(tokens[2]);
+                            normals.add(new Vector3f(x, y, z));
                             break;
                         }
                     }
@@ -130,7 +130,7 @@ public class ObjLoader {
 
                 String thisGroup = "";
                 String thisMtl = "";
-                Set<String> groupNames = new HashSet<>();
+//                Set<String> groupNames = new HashSet<>();
                 Map<String, Map<String, List<List<List<Integer>>>>> faceIndices = new HashMap<>();
 
                 // Second iteration, resolve faces
@@ -140,7 +140,7 @@ public class ObjLoader {
                         case "g":
                         case "o": {
                             thisGroup = tokens[1];
-                            groupNames.add(thisGroup);
+//                            groupNames.add(thisGroup);
                             break;
                         }
                         case "usemtl": {
@@ -170,8 +170,6 @@ public class ObjLoader {
                     Map<String, List<Face>> materialFaces = LocalModel.parseFromRawData(positions, uvs, normals, faceIndices.get(group));
                     builder = builder.pushGroup(group);
                     for (String material : materialFaces.keySet()) {
-                        System.out.println(material);
-                        System.out.println(mtls.get(material));
                         builder = builder.addMaterial(material, mtls.get(material)).addFaces(materialFaces.get(material));
                     }
                     builder = builder.popGroup();
@@ -179,7 +177,6 @@ public class ObjLoader {
                 return builder.build();
             } catch (IOException e) {
                 LOGGER.error("Unable to read model: {}", path);
-                e.printStackTrace();
                 return null;
             }
         } else {

@@ -27,6 +27,7 @@ public class WrappedVertexBuffer {
         this.children = children;
     }
 
+    static boolean bl = false;
     public static WrappedVertexBuffer upload(LocalModel localModel, Matrix4f pose, Matrix3f normal) {
         RenderSystem.assertOnRenderThread();
 
@@ -42,14 +43,15 @@ public class WrappedVertexBuffer {
 
             for (Face nonTriangleFace : faces) {
                 for (Face face : nonTriangleFace.asTriangles()) {
+                    if (!bl)
+                        System.out.println(face);
                     for (Vertex vertex : face.vertices()) {
                         // Add vertex
-//                        System.out.println(vertex.pos().x + "/" + vertex.pos().y + "/" + vertex.pos().z);
                         builder.vertex(
                                 pose,
-                                (float) vertex.pos().x(),
-                                (float) vertex.pos().y(),
-                                (float) vertex.pos().z()
+                                vertex.pos().x(),
+                                vertex.pos().y(),
+                                vertex.pos().z()
                         ).color(
                                 1f,
                                 1f,
@@ -57,16 +59,16 @@ public class WrappedVertexBuffer {
                                 1f
                         ).uv(
                                 // TODO: Configurable flipV?
-                                (float) vertex.uv().x(),
-                                (float) vertex.uv().y()
+                                vertex.uv().x(),
+                                vertex.uv().y()
                         ).endVertex();
                     }
                 }
             }
 
-            builder.vertex(pose, 0, 0, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).endVertex();
-            builder.vertex(pose, 1, 0, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).endVertex();
-            builder.vertex(pose, 0.5f, 1, 0).color(1f, 1f, 1f, 1f).uv(0.5f, 1f).endVertex();
+//            builder.vertex(pose, 0, 0, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).endVertex();
+//            builder.vertex(pose, 1, 0, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).endVertex();
+//            builder.vertex(pose, 0.5f, 1, 0).color(1f, 1f, 1f, 1f).uv(0.5f, 1f).endVertex();
 
 //            builder.vertex(pose, -0.09f, 0.94f, 0.94f).color(1f, 1f, 1f, 1f).uv(0f, 0f).endVertex();
 //            builder.vertex(pose, 0, 0, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).endVertex();
@@ -87,6 +89,7 @@ public class WrappedVertexBuffer {
             children.put(name, upload(child, pose, normal));
         }
 
+        bl = true;
         return new WrappedVertexBuffer(buffers, localModel.getTexture(), children);
     }
 

@@ -2,8 +2,9 @@ package team.dovecot.ccb.client.renderer.model;
 
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2d;
-import org.joml.Vector3d;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector3f;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
 
@@ -44,7 +45,7 @@ public class LocalModel {
         return faces.size();
     }
 
-    public static Map<String, List<Face>> parseFromRawData(List<Vector3d> positions, List<Vector2d> uvs, List<Vector3d> normals, Map<String, List<List<List<Integer>>>> indices) {
+    public static Map<String, List<Face>> parseFromRawData(List<Vector3f> positions, List<Vector2f> uvs, List<Vector3f> normals, Map<String, List<List<List<Integer>>>> indices) {
         Map<String, List<Face>> map = new HashMap<>();
         for (String material : indices.keySet()) {
             // Face iteration
@@ -52,7 +53,7 @@ public class LocalModel {
             for (List<List<Integer>> faceIndex : indices.get(material)) {
                 List<Vertex> vertices = new ArrayList<>();
                 for (List<Integer> index : faceIndex) {
-                    vertices.add(new Vertex(positions.get(index.get(2)), uvs.get(index.get(1)), normals.get(index.get(2))));
+                    vertices.add(new Vertex(positions.get(index.get(0)), uvs.get(index.get(1)), normals.get(index.get(2))));
                 }
                 facesWrapped.add(new Face(vertices));
             }
