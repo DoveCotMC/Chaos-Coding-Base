@@ -35,8 +35,8 @@ public final class Vertex {
     public String toString() {
         return "Vertex{" +
                 "pos=" + pos.toString(NumberFormat.getInstance()) +
-//                ", uv=" + uv +
-//                ", normal=" + normal +
+                ", uv=" + uv.toString(NumberFormat.getInstance()) +
+                ", normal=" + normal.toString(NumberFormat.getInstance()) +
                 '}';
     }
 }
