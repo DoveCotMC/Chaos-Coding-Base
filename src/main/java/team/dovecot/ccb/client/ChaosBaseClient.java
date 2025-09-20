@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import team.dovecot.ccb.client.block.entity.BlockEntityRendererTest;
+import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
 import team.dovecot.ccb.client.renderer.model.ObjLoader;
 import team.dovecot.ccb.common.ChaosBase;
@@ -18,11 +19,14 @@ import team.dovecot.ccb.common.file.VanillaAssetsFileProvider;
 import java.io.IOException;
 
 public class ChaosBaseClient implements ClientModInitializer {
+    public static LocalModel testModel = null;
+
     @Override
     public void onInitializeClient() {
         if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
             BlockEntityRendererRegistryImpl.register(CCBBlocks.CCBBlockEntities.TEST_BLOCK_ENTITY, context -> new BlockEntityRendererTest());
         }
+
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
             public ResourceLocation getFabricId() {
@@ -32,12 +36,12 @@ public class ChaosBaseClient implements ClientModInitializer {
             @Override
             public void onResourceManagerReload(ResourceManager resourceManager) {
                 try {
-                    BlockEntityRendererTest.simpleTexture.releaseId();
-                    BlockEntityRendererTest.simpleTexture.load(resourceManager);
+//                    BlockEntityRendererTest.simpleTexture.releaseId();
+//                    BlockEntityRendererTest.simpleTexture.load(resourceManager);
 
                     // Obj Loader TEST!!!
-                    ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
-                } catch (IOException e) {
+                    testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }

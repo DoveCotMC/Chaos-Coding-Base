@@ -165,15 +165,14 @@ public class ObjLoader {
                 }
 
                 // Second iteration, build up faces and groups
-                LocalModel.Builder builder = new LocalModel.Builder();
+                LocalModel.Builder builder = LocalModel.Builder.empty();
                 for (String group : faceIndices.keySet()) {
                     Map<String, List<Face>> materialFaces = LocalModel.parseFromRawData(positions, uvs, normals, faceIndices.get(group));
                     builder = builder.pushGroup(group);
                     for (String material : materialFaces.keySet()) {
                         System.out.println(material);
                         System.out.println(mtls.get(material));
-                        builder.addMaterial(material, mtls.get(material));
-                        builder.addFaces(materialFaces.get(material));
+                        builder = builder.addMaterial(material, mtls.get(material)).addFaces(materialFaces.get(material));
                     }
                     builder = builder.popGroup();
                 }

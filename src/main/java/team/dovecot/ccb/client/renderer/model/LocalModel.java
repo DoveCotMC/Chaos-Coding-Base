@@ -13,11 +13,11 @@ import java.util.*;
 public class LocalModel {
     private final Map<String, List<Face>> faces;
     // TODO: Vanilla texture manager
-    private final Map<String, ByteBuffer> texture;
-    private final Map<String, LocalModel> children;
+    public final Map<String, ResourceLocation> texture;
+    public final Map<String, LocalModel> children;
     private final boolean isRoot;
 
-    private LocalModel(Map<String, List<Face>> faces, Map<String, ByteBuffer> texture, Map<String, LocalModel> children, boolean isRoot) {
+    private LocalModel(Map<String, List<Face>> faces, Map<String, ResourceLocation> texture, Map<String, LocalModel> children, boolean isRoot) {
         this.faces = faces;
         this.texture = texture;
         this.children = children;
@@ -64,23 +64,29 @@ public class LocalModel {
 //        private TODO: How to store faces?
         private String material;
         private final Map<String, Builder> children;
+        private final Map<String, ResourceLocation> textures;
         private final Map<String, List<Face>> faces;
 
         private final Deque<Builder> stack;
         @Nullable
         private Builder parent;
 
-        public Builder() {
+        private Builder() {
             this("", null);
         }
 
         public Builder(String name, Builder parent) {
             this.name = name;
+            this.textures = new HashMap<>();
             this.material = "";
             this.children = new HashMap<>();
             this.faces = new HashMap<>();
             this.stack = new ArrayDeque<>();
             this.parent = parent;
+        }
+
+        public static Builder empty() {
+            return new Builder();
         }
 
         public Builder pushGroup(String groupName) {
@@ -99,6 +105,7 @@ public class LocalModel {
 
         public Builder addMaterial(String material, ResourceLocation texture) {
             this.material = material;
+            this.textures.put(material, texture);
             return this;
         }
 
@@ -115,7 +122,7 @@ public class LocalModel {
                 children.put(groupName, builder.build());
             }
 
-            return new LocalModel(faces, new HashMap<>(), children, parent == null);
+            return new LocalModel(faces, textures, children, parent == null);
         }
     }
 }
