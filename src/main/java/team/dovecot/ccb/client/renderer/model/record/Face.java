@@ -3,6 +3,7 @@ package team.dovecot.ccb.client.renderer.model.record;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,6 +20,25 @@ public final class Face {
 
     public int numVertices() {
         return vertices.size();
+    }
+
+    public List<Face> asTriangles() {
+        if (numVertices() <= 3)
+            return List.of(this);
+
+        List<Face> faces = new ArrayList<>();
+        for (int i = 2; i < numVertices(); i++) {
+            faces.add(
+                    new Face(
+                            List.of(
+                                    vertices.get(0),
+                                    vertices.get(1),
+                                    vertices.get(i)
+                            )
+                    )
+            );
+        }
+        return faces;
     }
 
     @Override

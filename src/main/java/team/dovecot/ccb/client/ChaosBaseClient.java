@@ -36,9 +36,6 @@ public class ChaosBaseClient implements ClientModInitializer {
             @Override
             public void onResourceManagerReload(ResourceManager resourceManager) {
                 try {
-//                    BlockEntityRendererTest.simpleTexture.releaseId();
-//                    BlockEntityRendererTest.simpleTexture.load(resourceManager);
-
                     // Obj Loader TEST!!!
                     testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
                 } catch (Exception e) {

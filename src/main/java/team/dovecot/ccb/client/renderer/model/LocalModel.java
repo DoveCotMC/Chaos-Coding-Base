@@ -13,8 +13,8 @@ import java.util.*;
 public class LocalModel {
     private final Map<String, List<Face>> faces;
     // TODO: Vanilla texture manager
-    public final Map<String, ResourceLocation> texture;
-    public final Map<String, LocalModel> children;
+    private final Map<String, ResourceLocation> texture;
+    private final Map<String, LocalModel> children;
     private final boolean isRoot;
 
     private LocalModel(Map<String, List<Face>> faces, Map<String, ResourceLocation> texture, Map<String, LocalModel> children, boolean isRoot) {
@@ -26,6 +26,22 @@ public class LocalModel {
 
     public LocalModel(Map<String, LocalModel> children) {
         this(new HashMap<>(), new HashMap<>(), children, true);
+    }
+
+    public Map<String, ResourceLocation> getTexture() {
+        return texture;
+    }
+
+    public Map<String, List<Face>> getFaces() {
+        return faces;
+    }
+
+    public Map<String, LocalModel> getChildren() {
+        return children;
+    }
+
+    public int getNumFaces() {
+        return faces.size();
     }
 
     public static Map<String, List<Face>> parseFromRawData(List<Vector3d> positions, List<Vector2d> uvs, List<Vector3d> normals, Map<String, List<List<List<Integer>>>> indices) {
@@ -43,10 +59,6 @@ public class LocalModel {
             map.put(material, facesWrapped);
         }
         return map;
-    }
-
-    public int getNumFaces() {
-        return faces.size();
     }
 
     @Override
