@@ -2,8 +2,12 @@ package team.dovecot.ccb.client.renderer.model;
 
 import static team.dovecot.ccb.common.ChaosBase.*;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -19,11 +23,12 @@ import java.util.*;
 public class ObjLoader {
     /**
      * Parse obj model and load to memory
-     * @param modelId Model Identifier, required to locate a model in database.
+     * @param modelLocation Model Identifier, required to locate a model in database.
      * @param path Path of the model, must include suffix (like .obj)
      * @param fileProvider To access file
+     * @return The model
      */
-    public static void load(ResourceIdentifier modelId, String path, IFileProvider fileProvider) {
+    public static @Nullable LocalModel load(ResourceLocation modelLocation, String path, IFileProvider fileProvider) {
         // TODO: Re-construct required due to new model format
         LOGGER.info("Loading Obj model: \"{}\"", path);
 //        LOGGER.debug("File Provider: " + fileProvider.getClass());
@@ -42,7 +47,7 @@ public class ObjLoader {
                 Map<String, Map<String, List<Vector3i[]>>> faceCache = new HashMap<>();
 
                 // Materials
-                Map<String, ResourceIdentifier> mtls = new HashMap<>();
+                Map<String, ResourceLocation> mtls = new HashMap<>();
 
                 // Pre-processing, load vertices data...
                 List<String> lines = objString.lines().toList();
@@ -77,9 +82,16 @@ public class ObjLoader {
                                                 break;
                                             }
 
-                                            InputStream imageStream = imageOptional.get();
-                                            TextureManager.getInstance().uploadModel(modelId.join(currentMaterial), imageStream.readAllBytes());
-                                            mtls.put(mapName, modelId.join(currentMaterial));
+                                            // Upload to vanilla texture manager
+                                            try (InputStream imageStream = imageOptional.get()) {
+                                                ResourceLocation mapLocation = modelLocation.withSuffix("/").withSuffix(mapName);
+
+                                                Minecraft.getInstance().getTextureManager().register(
+                                                        mapLocation,
+                                                        new DynamicTexture(NativeImage.read(imageStream))
+                                                );
+                                                mtls.put(currentMaterial, mapLocation);
+                                            }
                                         }
                                         default -> {
                                             LOGGER.warn("Unknown Token when parsing mtl file: " + mtlTokens[0]);
@@ -88,7 +100,7 @@ public class ObjLoader {
                                 }
                             } else {
                                 LOGGER.error("Mtl not found: {}", path + ", loading process interrupted!");
-                                return;
+                                return null;
                             }
                             System.out.println(rootDir + "/" + tokens[1]);
                             break;
@@ -113,25 +125,6 @@ public class ObjLoader {
                             normals.add(new Vector3d(x, y, z));
                             break;
                         }
-//                        case "f": {
-//                            int count = tokens.length - 1;
-//                            Vector3i[] indices = new Vector3i[count];
-//
-//                            for (int i = 0; i < count; i++) {
-//                                String[] indexTokens = tokens[i + 1].split("/");
-//                                int x = Integer.parseInt(indexTokens[0]);
-//                                int y = Integer.parseInt(indexTokens[1]);
-//                                int z = Integer.parseInt(indexTokens[2]);
-//                                indices[i] = new Vector3i(x, y, z);
-//                            }
-//
-//                            Map<String, List<Vector3i[]>> materials = faceCache.getOrDefault(thisGroup, new HashMap<>());
-//                            List<Vector3i[]> faces = materials.getOrDefault(thisMtl, new ArrayList<>());
-//                            faces.add(indices);
-//                            materials.put(thisMtl, faces);
-//                            faceCache.put(thisGroup, materials);
-//                            break;
-//                        }
                     }
                 }
 
@@ -148,15 +141,10 @@ public class ObjLoader {
                         case "o": {
                             thisGroup = tokens[1];
                             groupNames.add(thisGroup);
-                            System.out.println("Group: " + thisGroup);
                             break;
                         }
                         case "usemtl": {
-//                            if (!Objects.equals(thisMtl, tokens[1])) {
-//                                System.out.println("Material changed: " + tokens[1]);
-//                            }
                             thisMtl = tokens[1];
-                            System.out.println("Mtl: " + thisMtl);
                             break;
                         }
                         case "f": {
@@ -176,54 +164,28 @@ public class ObjLoader {
                     }
                 }
 
+                // Second iteration, build up faces and groups
                 LocalModel.Builder builder = new LocalModel.Builder();
                 for (String group : faceIndices.keySet()) {
                     Map<String, List<Face>> materialFaces = LocalModel.parseFromRawData(positions, uvs, normals, faceIndices.get(group));
-                    System.out.println(materialFaces);
-                    builder.pushGroup(group);
+                    builder = builder.pushGroup(group);
                     for (String material : materialFaces.keySet()) {
-//                        Minecraft.getInstance().getTextureManager().register();
-                        builder.addMaterial(material, new ResourceLocation("", ""));
+                        System.out.println(material);
+                        System.out.println(mtls.get(material));
+                        builder.addMaterial(material, mtls.get(material));
                         builder.addFaces(materialFaces.get(material));
                     }
-                    builder.popGroup();
+                    builder = builder.popGroup();
                 }
-
-                // Converting to Local model
-                // Group name, Raw Model
-//                Map<String, LocalModel> groups = new HashMap<>();
-//                for (String groupName : groupNames) {
-//                    for (Map.Entry<String, List<Vector3i[]>> entry : faceCache.get(groupName).entrySet()) {
-//                        String mtl = entry.getKey();
-//                        List<Vector3i[]> faceIndices = entry.getValue();
-//                        List<Face> faces = new ArrayList<>();
-//                        for (Vector3i[] vertices : faceIndices) {
-//                            List<Vertex> verticesInFace = new ArrayList<>();
-//                            for (Vector3i vertexIndex : vertices) {
-//                                int faceIndex = vertexIndex.x - 1;
-//                                int uvIndex = vertexIndex.y - 1;
-//                                int normalIndex = vertexIndex.z - 1;
-//                                verticesInFace.add(new Vertex(
-//                                        new Vector3d(positions.get(faceIndex)),
-//                                        new Vector3d(normals.get(normalIndex)),
-//                                        new Vector2d(uvs.get(uvIndex))
-//                                ));
-//                            }
-//                            faces.add(new Face(verticesInFace));
-//                        }
-//                        // TODO: Load model to memory
-//                        uploadModel(modelId, groupName, faces, mtl, fileProvider);
-//                    }
-//                }
-
-
-                // Second iteration, build up faces and groups
+                return builder.build();
             } catch (IOException e) {
                 LOGGER.error("Unable to read model: {}", path);
                 e.printStackTrace();
+                return null;
             }
         } else {
             LOGGER.error("Model not found: {}", path);
+            return null;
         }
     }
 

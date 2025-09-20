@@ -36,13 +36,10 @@ public class ChaosBaseClient implements ClientModInitializer {
                     BlockEntityRendererTest.simpleTexture.load(resourceManager);
 
                     // Obj Loader TEST!!!
-                    ObjLoader.load(new ResourceIdentifier(ChaosBase.MOD_ID, "utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
+                    ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
-                // TODO: Interrupt
-                System.exit(0);
             }
         });
     }

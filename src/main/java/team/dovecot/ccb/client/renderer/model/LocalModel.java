@@ -49,6 +49,16 @@ public class LocalModel {
         return faces.size();
     }
 
+    @Override
+    public String toString() {
+        return "LocalModel{" +
+                "faces=" + faces +
+                ", texture=" + texture +
+                ", children=" + children +
+                ", isRoot=" + isRoot +
+                '}';
+    }
+
     public static class Builder {
         private final String name;
 //        private TODO: How to store faces?
