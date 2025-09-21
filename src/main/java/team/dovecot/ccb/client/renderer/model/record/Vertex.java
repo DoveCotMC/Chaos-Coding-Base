@@ -1,12 +1,9 @@
 package team.dovecot.ccb.client.renderer.model.record;
 
-import org.joml.Vector2d;
 import org.joml.Vector2f;
-import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import java.text.NumberFormat;
-import java.util.Objects;
 
 public final class Vertex {
     private final Vector3f pos;

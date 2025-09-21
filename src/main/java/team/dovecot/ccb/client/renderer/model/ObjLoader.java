@@ -13,6 +13,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 import team.dovecot.ccb.client.renderer.TextureManager;
 import team.dovecot.ccb.client.renderer.model.record.Face;
+import team.dovecot.ccb.client.renderer.model.record.Vertex;
 import team.dovecot.ccb.common.file.IFileProvider;
 
 import java.io.IOException;
@@ -108,7 +109,7 @@ public class ObjLoader {
                         case "v": {
                             float x = Float.parseFloat(tokens[1]);
                             float y = Float.parseFloat(tokens[2]);
-                            float z = Float.parseFloat(tokens[2]);
+                            float z = Float.parseFloat(tokens[3]);
                             positions.add(new Vector3f(x, y, z));
                             break;
                         }
@@ -121,7 +122,7 @@ public class ObjLoader {
                         case "vn": {
                             float x = Float.parseFloat(tokens[1]);
                             float y = Float.parseFloat(tokens[2]);
-                            float z = Float.parseFloat(tokens[2]);
+                            float z = Float.parseFloat(tokens[3]);
                             normals.add(new Vector3f(x, y, z));
                             break;
                         }
@@ -131,6 +132,7 @@ public class ObjLoader {
                 String thisGroup = "";
                 String thisMtl = "";
 //                Set<String> groupNames = new HashSet<>();
+                Map<String, Map<String, List<Face>>> groupMaterialFaces = new HashMap<>();
                 Map<String, Map<String, List<List<List<Integer>>>>> faceIndices = new HashMap<>();
 
                 // Second iteration, resolve faces
@@ -148,17 +150,16 @@ public class ObjLoader {
                             break;
                         }
                         case "f": {
-                            Map<String, List<List<List<Integer>>>> idkMap = faceIndices.getOrDefault(thisGroup, new HashMap<>());
-                            List<List<List<Integer>>> indices = idkMap.getOrDefault(thisMtl, new ArrayList<>());
-                            List<List<Integer>> face = new ArrayList<>();
+                            Map<String, List<Face>> map = groupMaterialFaces.getOrDefault(thisGroup, new HashMap<>());
+                            List<Face> faces = map.getOrDefault(thisMtl, new ArrayList<>());
+                            List<Vertex> vertices = new ArrayList<>();
                             for (int i = 1; i < tokens.length; i++) {
                                 int[] indicesArray = splitVertexIndexString(tokens[i]);
-                                List<Integer> index = List.of(indicesArray[0], indicesArray[1], indicesArray[2]);
-                                face.add(index);
+                                vertices.add(new Vertex(positions.get(indicesArray[0]), uvs.get(indicesArray[1]), normals.get(indicesArray[2])));
                             }
-                            indices.add(face);
-                            idkMap.put(thisMtl, indices);
-                            faceIndices.put(thisGroup, idkMap);
+                            faces.add(new Face(vertices));
+                            map.put(thisMtl, faces);
+                            groupMaterialFaces.put(thisGroup, map);
                             break;
                         }
                     }
@@ -166,11 +167,10 @@ public class ObjLoader {
 
                 // Second iteration, build up faces and groups
                 LocalModel.Builder builder = LocalModel.Builder.empty();
-                for (String group : faceIndices.keySet()) {
-                    Map<String, List<Face>> materialFaces = LocalModel.parseFromRawData(positions, uvs, normals, faceIndices.get(group));
+                for (String group : groupMaterialFaces.keySet()) {
                     builder = builder.pushGroup(group);
-                    for (String material : materialFaces.keySet()) {
-                        builder = builder.addMaterial(material, mtls.get(material)).addFaces(materialFaces.get(material));
+                    for (String material : groupMaterialFaces.get(group).keySet()) {
+                        builder = builder.addMaterial(material, mtls.get(material)).addFaces(groupMaterialFaces.get(group).get(material));
                     }
                     builder = builder.popGroup();
                 }
