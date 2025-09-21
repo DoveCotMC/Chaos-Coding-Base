@@ -32,7 +32,7 @@ public final class Face {
                     new Face(
                             List.of(
                                     vertices.get(0),
-                                    vertices.get(1),
+                                    vertices.get(i - 1),
                                     vertices.get(i)
                             )
                     )

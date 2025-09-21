@@ -115,7 +115,7 @@ public class ObjLoader {
                         }
                         case "vt": {
                             float u = Float.parseFloat(tokens[1]);
-                            float v = Float.parseFloat(tokens[2]);
+                            float v = 1f - Float.parseFloat(tokens[2]);
                             uvs.add(new Vector2f(u, v));
                             break;
                         }

@@ -3,11 +3,17 @@ package team.dovecot.ccb.client.renderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.SheepModel;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import net.minecraft.client.renderer.entity.SheepRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL30;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
@@ -37,7 +43,7 @@ public class WrappedVertexBuffer {
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
 
         for (Map.Entry<String, List<Face>> entry : localModel.getFaces().entrySet()) {
-            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR_TEX);
+            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.BLOCK);
             String materialName = entry.getKey();
             List<Face> faces = entry.getValue();
 
@@ -61,6 +67,16 @@ public class WrappedVertexBuffer {
                                 // TODO: Configurable flipV?
                                 vertex.uv().x(),
                                 vertex.uv().y()
+                        ).overlayCoords(
+                                OverlayTexture.NO_OVERLAY
+                        ).uv2(
+                                0xF00000 & 0xFFFF,
+                                0xF00000 >> 16 & 0xFFFF
+                        ).normal(
+                                normal,
+                                vertex.normal().x(),
+                                vertex.normal().y(),
+                                vertex.normal().z()
                         ).endVertex();
                     }
                 }
@@ -97,10 +113,23 @@ public class WrappedVertexBuffer {
         for (Map.Entry<String, VertexBuffer> entry : this.buffers.entrySet()) {
             String material = entry.getKey();
             VertexBuffer vertexBuffer = entry.getValue();
-            RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             RenderSystem.setShaderTexture(0, this.textures.get(material));
+
+            RenderSystem.setShader(GameRenderer::getRendertypeEntityCutoutShader);
+            Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
+
+//            // The index of Lightmap UV or UV2 is 4
+//            GL30.glDisableVertexAttribArray(4);
+//
+//            int lightProcessed = 0xF00000;
+//
+//            // Insert Lightmap UV
+//            GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
+
             vertexBuffer.bind();
             vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+//            GL30.glEnableVertexAttribArray(4);
         }
     }
 
