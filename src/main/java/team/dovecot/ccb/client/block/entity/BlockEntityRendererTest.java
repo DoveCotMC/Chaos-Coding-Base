@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -54,7 +55,7 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
 //        tesselator.end();
         WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, poseStack.last().pose(), poseStack.last().normal());
 //        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        buffer.renderAll();
+        buffer.renderAll(j);
         buffer.releaseAll();
         poseStack.popPose();
     }

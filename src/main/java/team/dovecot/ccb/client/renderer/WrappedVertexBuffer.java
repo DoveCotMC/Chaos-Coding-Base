@@ -67,13 +67,15 @@ public class WrappedVertexBuffer {
                                 // TODO: Configurable flipV?
                                 vertex.uv().x(),
                                 vertex.uv().y()
-                        ).overlayCoords(
+                        )/*.overlayCoords(
                                 OverlayTexture.NO_OVERLAY
-                        ).uv2(
-                                0xF00000 & 0xFFFF,
-                                0xF00000 >> 16 & 0xFFFF
+                        )*/.uv2(
+//                                0xF00000 & 0xFFFF,
+//                                0xF00000 >> 16 & 0xFFFF
+                                0,
+                                240
                         ).normal(
-                                normal,
+//                                normal,
                                 vertex.normal().x(),
                                 vertex.normal().y(),
                                 vertex.normal().z()
@@ -109,34 +111,35 @@ public class WrappedVertexBuffer {
         return new WrappedVertexBuffer(buffers, localModel.getTexture(), children);
     }
 
-    public void render() {
+    public void render(int light) {
         for (Map.Entry<String, VertexBuffer> entry : this.buffers.entrySet()) {
             String material = entry.getKey();
             VertexBuffer vertexBuffer = entry.getValue();
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             RenderSystem.setShaderTexture(0, this.textures.get(material));
 
-            RenderSystem.setShader(GameRenderer::getRendertypeEntityCutoutShader);
+            RenderSystem.setShader(GameRenderer::getRendertypeCutoutShader);
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 
-//            // The index of Lightmap UV or UV2 is 4
+            // The index of Lightmap UV or UV2 is 4
+            vertexBuffer.bind();
 //            GL30.glDisableVertexAttribArray(4);
 //
 //            int lightProcessed = 0xF00000;
+//            lightProcessed = light;
 //
 //            // Insert Lightmap UV
-//            GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
+//            GL30.glVertexAttribI2i(4, lightProcessed >> 16 & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
 
-            vertexBuffer.bind();
             vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
 //            GL30.glEnableVertexAttribArray(4);
         }
     }
 
-    public void renderAll() {
-        this.render();
+    public void renderAll(int light) {
+        this.render(light);
         for (WrappedVertexBuffer buffer : this.children.values()) {
-            buffer.renderAll();
+            buffer.renderAll(light);
         }
     }
 
