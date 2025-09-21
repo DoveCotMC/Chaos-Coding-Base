@@ -27,7 +27,7 @@ import team.dovecot.ccb.common.block.entity.BlockEntityTest;
 public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityTest> {
     @Override
     public void render(BlockEntityTest blockEntity, float f, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j) {
-        Tesselator tesselator = Tesselator.getInstance();
+//        Tesselator tesselator = Tesselator.getInstance();
 
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(true);
@@ -53,9 +53,9 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
 //        RenderSystem.setShaderTexture(0, ChaosBaseClient.testModel.children.get("cylinder").texture.values().stream().toList().get(0));
 //        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
 //        tesselator.end();
-        WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, poseStack.last().pose(), poseStack.last().normal());
+        WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, poseStack.last().pose(), poseStack.last().normal(), i, j);
 //        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        buffer.renderAll(j);
+        buffer.renderAll(i);
         buffer.releaseAll();
         poseStack.popPose();
     }

@@ -34,7 +34,7 @@ public class WrappedVertexBuffer {
     }
 
     static boolean bl = false;
-    public static WrappedVertexBuffer upload(LocalModel localModel, Matrix4f pose, Matrix3f normal) {
+    public static WrappedVertexBuffer upload(LocalModel localModel, Matrix4f pose, Matrix3f normal, int light, int overlay) {
         RenderSystem.assertOnRenderThread();
 
         Map<String, WrappedVertexBuffer> children = new HashMap<>();
@@ -43,7 +43,7 @@ public class WrappedVertexBuffer {
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
 
         for (Map.Entry<String, List<Face>> entry : localModel.getFaces().entrySet()) {
-            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.BLOCK);
+            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
             String materialName = entry.getKey();
             List<Face> faces = entry.getValue();
 
@@ -67,15 +67,13 @@ public class WrappedVertexBuffer {
                                 // TODO: Configurable flipV?
                                 vertex.uv().x(),
                                 vertex.uv().y()
-                        )/*.overlayCoords(
+                        ).overlayCoords(
                                 OverlayTexture.NO_OVERLAY
-                        )*/.uv2(
-//                                0xF00000 & 0xFFFF,
-//                                0xF00000 >> 16 & 0xFFFF
-                                0,
-                                240
+                        ).uv2(
+                                light & 0xFFFF,
+                                light >> 16 & 0xFFFF
                         ).normal(
-//                                normal,
+                                normal,
                                 vertex.normal().x(),
                                 vertex.normal().y(),
                                 vertex.normal().z()
@@ -104,7 +102,7 @@ public class WrappedVertexBuffer {
         for (Map.Entry<String, LocalModel> entry : localModel.getChildren().entrySet()) {
             String name = entry.getKey();
             LocalModel child = entry.getValue();
-            children.put(name, upload(child, pose, normal));
+            children.put(name, upload(child, pose, normal, light, overlay));
         }
 
         bl = true;
@@ -118,7 +116,7 @@ public class WrappedVertexBuffer {
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             RenderSystem.setShaderTexture(0, this.textures.get(material));
 
-            RenderSystem.setShader(GameRenderer::getRendertypeCutoutShader);
+            RenderSystem.setShader(GameRenderer::getRendertypeEntityCutoutShader);
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 
             // The index of Lightmap UV or UV2 is 4
@@ -126,11 +124,11 @@ public class WrappedVertexBuffer {
 //            GL30.glDisableVertexAttribArray(4);
 //
 //            int lightProcessed = 0xF00000;
-//            lightProcessed = light;
+////            lightProcessed = light;
 //
 //            // Insert Lightmap UV
-//            GL30.glVertexAttribI2i(4, lightProcessed >> 16 & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
-
+//            GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
+//
             vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
 //            GL30.glEnableVertexAttribArray(4);
         }
