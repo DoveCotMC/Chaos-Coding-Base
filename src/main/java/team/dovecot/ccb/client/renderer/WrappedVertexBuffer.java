@@ -4,7 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -105,7 +107,7 @@ public class WrappedVertexBuffer {
             String material = entry.getKey();
             VertexBuffer vertexBuffer = entry.getValue();
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            RenderSystem.setShaderTexture(0, this.textures.get(material));
+            RenderSystem.setShaderTexture(0, getTexture(material));
 
             RenderSystem.setShader(GameRenderer::getRendertypeEntityCutoutShader);
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
@@ -143,5 +145,9 @@ public class WrappedVertexBuffer {
         for (WrappedVertexBuffer child : this.children.values()) {
             child.release();
         }
+    }
+
+    public ResourceLocation getTexture(String material) {
+        return this.textures.get(material) == null ? MissingTextureAtlasSprite.getLocation() : this.textures.get(material);
     }
 }
