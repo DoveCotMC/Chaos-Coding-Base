@@ -52,15 +52,41 @@ public class WrappedVertexBuffer {
                 for (Face face : nonTriangleFace.asTriangles()) {
                     for (Vertex vertex : face.vertices()) {
                         // Add vertex
-                        Vector4f positionVec = pose.transform(new Vector4f(vertex.pos(), 1.0f));
-                        Vector3f normalVec = normal.transform(vertex.normal());
+//                        Vector4f positionVec = pose.transform(new Vector4f(vertex.pos(), 1.0f));
+//                        Vector3f normalVec = normal.transform(vertex.normal());
+//                        builder.vertex(
+//                                positionVec.x(), positionVec.y(), positionVec.z(),
+//                                1.0f, 1.0f, 1.0f, 1.0f,
+//                                vertex.uv().x(), vertex.uv().y(),
+//                                overlay, light,
+//                                normalVec.x(), normalVec.y(), normalVec.z()
+//                        );
+
                         builder.vertex(
-                                positionVec.x(), positionVec.y(), positionVec.z(),
-                                1.0f, 1.0f, 1.0f, 1.0f,
-                                vertex.uv().x(), vertex.uv().y(),
-                                overlay, light,
-                                normalVec.x(), normalVec.y(), normalVec.z()
-                        );
+                                pose,
+                                vertex.pos().x(),
+                                vertex.pos().y(),
+                                vertex.pos().z()
+                        ).color(
+                                1f,
+                                1f,
+                                1f,
+                                1f
+                        ).uv(
+                                // TODO: Configurable flipV?
+                                vertex.uv().x(),
+                                vertex.uv().y()
+                        ).overlayCoords(
+                                OverlayTexture.NO_OVERLAY
+                        ).uv2(
+                                light & 0xFFFF,
+                                light >> 16 & 0xFFFF
+                        ).normal(
+                                normal,
+                                vertex.normal().x(),
+                                vertex.normal().y(),
+                                vertex.normal().z()
+                        ).endVertex();
                     }
                 }
             }
