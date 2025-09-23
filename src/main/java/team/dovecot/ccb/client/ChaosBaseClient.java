@@ -10,13 +10,10 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import team.dovecot.ccb.client.block.entity.BlockEntityRendererTest;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
-import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
 import team.dovecot.ccb.client.renderer.model.ObjLoader;
 import team.dovecot.ccb.common.ChaosBase;
 import team.dovecot.ccb.common.block.CCBBlocks;
 import team.dovecot.ccb.common.file.VanillaAssetsFileProvider;
-
-import java.io.IOException;
 
 public class ChaosBaseClient implements ClientModInitializer {
     public static LocalModel testModel = null;

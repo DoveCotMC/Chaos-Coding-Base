@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
-import team.dovecot.ccb.client.renderer.TextureManager;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
 import team.dovecot.ccb.common.file.IFileProvider;
