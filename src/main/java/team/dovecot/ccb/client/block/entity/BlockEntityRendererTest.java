@@ -15,8 +15,11 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import team.dovecot.ccb.client.ChaosBaseClient;
+import team.dovecot.ccb.client.renderer.IRenderContext;
 import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.client.renderer.WrappedVertexBuffer;
 import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
@@ -55,7 +58,27 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
 //        tesselator.end();
         WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, poseStack.last().pose(), poseStack.last().normal(), i, j);
 //        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        buffer.renderAll(i);
+        buffer.renderAll(new IRenderContext() {
+            @Override
+            public Matrix4f getPoseMatrix() {
+                return poseStack.last().pose();
+            }
+
+            @Override
+            public Matrix3f getNormalMatrix() {
+                return poseStack.last().normal();
+            }
+
+            @Override
+            public int getLight() {
+                return i;
+            }
+
+            @Override
+            public int getOverlay() {
+                return j;
+            }
+        });
         buffer.releaseAll();
         poseStack.popPose();
     }

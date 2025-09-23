@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL30;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
@@ -46,16 +47,6 @@ public class WrappedVertexBuffer {
                 for (Face face : nonTriangleFace.asTriangles()) {
                     for (Vertex vertex : face.vertices()) {
                         // Add vertex
-//                        Vector4f positionVec = pose.transform(new Vector4f(vertex.pos(), 1.0f));
-//                        Vector3f normalVec = normal.transform(vertex.normal());
-//                        builder.vertex(
-//                                positionVec.x(), positionVec.y(), positionVec.z(),
-//                                1.0f, 1.0f, 1.0f, 1.0f,
-//                                vertex.uv().x(), vertex.uv().y(),
-//                                overlay, light,
-//                                normalVec.x(), normalVec.y(), normalVec.z()
-//                        );
-
                         builder.vertex(
                                 pose,
                                 vertex.pos().x(),
@@ -73,8 +64,9 @@ public class WrappedVertexBuffer {
                         ).overlayCoords(
                                 OverlayTexture.NO_OVERLAY
                         ).uv2(
-                                light & 0xFFFF,
-                                light >> 16 & 0xFFFF
+                                0, 0
+//                                light & 0xFFFF,
+//                                light >> 16 & 0xFFFF
                         ).normal(
                                 normal,
                                 vertex.normal().x(),
@@ -102,7 +94,7 @@ public class WrappedVertexBuffer {
         return new WrappedVertexBuffer(buffers, localModel.getTexture(), children);
     }
 
-    public void render(int light) {
+    public void render(IRenderContext context) {
         for (Map.Entry<String, VertexBuffer> entry : this.buffers.entrySet()) {
             String material = entry.getKey();
             VertexBuffer vertexBuffer = entry.getValue();
@@ -114,23 +106,23 @@ public class WrappedVertexBuffer {
 
             // The index of Lightmap UV or UV2 is 4
             vertexBuffer.bind();
-//            GL30.glDisableVertexAttribArray(4);
-//
-//            int lightProcessed = 0xF00000;
-////            lightProcessed = light;
-//
-//            // Insert Lightmap UV
-//            GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
-//
+            GL30.glDisableVertexAttribArray(4);
+
+            int lightProcessed = 0xF00000;
+            lightProcessed = context.getLight();
+
+            // Insert Lightmap UV
+            GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
+
             vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-//            GL30.glEnableVertexAttribArray(4);
+            GL30.glEnableVertexAttribArray(4);
         }
     }
 
-    public void renderAll(int light) {
-        this.render(light);
+    public void renderAll(IRenderContext context) {
+        this.render(context);
         for (WrappedVertexBuffer buffer : this.children.values()) {
-            buffer.renderAll(light);
+            buffer.renderAll(context);
         }
     }
 
