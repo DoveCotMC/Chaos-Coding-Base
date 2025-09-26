@@ -1,8 +1,6 @@
 package team.dovecot.ccb;
 
 import net.minecraft.resources.ResourceLocation;
-import team.dovecot.ccb.client.renderer.model.BlockBenchLoader;
-import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
 import team.dovecot.ccb.client.renderer.model.ObjLoader;
 import team.dovecot.ccb.common.file.SystemFileProvider;
 

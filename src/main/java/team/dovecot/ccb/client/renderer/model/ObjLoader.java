@@ -51,7 +51,13 @@ public class ObjLoader {
 
                 // Pre-processing, load vertices data...
                 List<String> lines = objString.lines().toList();
-                for (String line : lines) {
+                for (String rawLine : lines) {
+                    String line = rawLine;
+
+                    // Remove double spaces
+                    while (line.contains("  "))
+                        line = line.replace("  ", " ");
+
                     String[] tokens = line.split(" ");
                     switch (tokens[0]) {
                         case "mtllib": {
@@ -135,7 +141,13 @@ public class ObjLoader {
                 Map<String, Map<String, List<List<List<Integer>>>>> faceIndices = new HashMap<>();
 
                 // Second iteration, resolve faces
-                for (String line : lines) {
+                for (String rawLine : lines) {
+                    String line = rawLine;
+
+                    // Remove double spaces
+                    while (line.contains("  "))
+                        line = line.replace("  ", " ");
+
                     String[] tokens = line.split(" ");
                     switch (tokens[0]) {
                         case "g":

@@ -114,7 +114,7 @@ public class WrappedVertexBuffer {
             // Insert Lightmap UV
             GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
 
-            vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
             GL30.glEnableVertexAttribArray(4);
         }
     }
