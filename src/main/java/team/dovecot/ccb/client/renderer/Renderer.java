@@ -17,9 +17,16 @@ public class Renderer {
 
     public static Renderer getInstance() {
         if (instance == null)
-            instance = new Renderer();
+            reload();
 
         return instance;
+    }
+
+    public static void reload() {
+        if (instance != null) {
+            close();
+        }
+        instance = new Renderer();
     }
 
     @Nullable
