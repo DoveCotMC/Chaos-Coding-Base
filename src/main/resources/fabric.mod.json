@@ -21,7 +21,8 @@
     ]
   },
   "mixins": [
-    "ccb.mixins.json"
+    "ccb.mixins.json",
+    "ccb.mixins.client.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

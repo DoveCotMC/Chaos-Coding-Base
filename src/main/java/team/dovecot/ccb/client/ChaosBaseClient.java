@@ -27,13 +27,14 @@ public class ChaosBaseClient implements ClientModInitializer {
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
             public ResourceLocation getFabricId() {
-                return new ResourceLocation("ccb", "custom_resources");
+                return new ResourceLocation(ChaosBase.MOD_ID, "custom_resources");
             }
 
             @Override
             public void onResourceManagerReload(ResourceManager resourceManager) {
                 try {
                     // Obj Loader TEST!!!
+                    ModelTransformer.test();
                     testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
 //                    testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/fy1/fy1.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
                 } catch (Exception e) {

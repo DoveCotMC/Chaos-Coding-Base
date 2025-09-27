@@ -1,9 +1,11 @@
 package team.dovecot.ccb.client.renderer;
 
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -11,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL30;
+import team.dovecot.ccb.client.mixin.accessor.AccessorVertexBuffer;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
@@ -113,8 +116,20 @@ public class WrappedVertexBuffer {
 
             // Insert Lightmap UV
             GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
+            Matrix4f modelViewMatrix = context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix());
+            Matrix4f projectionMatrix = RenderSystem.getProjectionMatrix();
 
-            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+            ShaderInstance shaderInstance = RenderSystem.getShader();
+
+            if (shaderInstance == null)
+                return;
+
+            Renderer.setupShader(shaderInstance, projectionMatrix, modelViewMatrix, ((AccessorVertexBuffer) vertexBuffer).getMode());
+            shaderInstance.apply();
+            RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
+            shaderInstance.clear();
+
+//            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
             GL30.glEnableVertexAttribArray(4);
         }
     }

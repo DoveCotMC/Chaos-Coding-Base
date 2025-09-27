@@ -1,0 +1,17 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "team.dovecot.ccb.client.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "mixins": [
+    ],
+    "client": [
+        "accessor.AccessorVertexBuffer"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "overwrites": {
+        "requireAnnotations": false
+    }
+}
