@@ -21,7 +21,7 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
         RenderSystem.enableCull();
 
         poseStack.pushPose();
-        poseStack.mulPoseMatrix(new Matrix4f().scale(16, 16, 16));
+//        poseStack.mulPoseMatrix(new Matrix4f().scale(16, 16, 16));
         WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, poseStack.last().pose(), poseStack.last().normal(), i, j);
 //        WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, new Matrix4f(), new Matrix3f(), i, j);
 

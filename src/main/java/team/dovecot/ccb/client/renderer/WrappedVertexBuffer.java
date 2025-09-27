@@ -1,6 +1,5 @@
 package team.dovecot.ccb.client.renderer;
 
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
@@ -8,11 +7,11 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL30;
+import team.dovecot.ccb.client.ModelTransformer;
 import team.dovecot.ccb.client.mixin.accessor.AccessorVertexBuffer;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.record.Face;
@@ -26,11 +25,13 @@ public class WrappedVertexBuffer {
     private final Map<String, VertexBuffer> buffers;
     private final Map<String, ResourceLocation> textures;
     private final Map<String, WrappedVertexBuffer> children;
+    private final Map<String, ModelTransformer> modelTransformers;
 
-    public WrappedVertexBuffer(Map<String, VertexBuffer> buffers, Map<String, ResourceLocation> textures, Map<String, WrappedVertexBuffer> children) {
+    private WrappedVertexBuffer(Map<String, VertexBuffer> buffers, Map<String, ResourceLocation> textures, Map<String, WrappedVertexBuffer> children) {
         this.buffers = buffers;
         this.textures = textures;
         this.children = children;
+        this.modelTransformers = new HashMap<>();
     }
 
     public static WrappedVertexBuffer upload(LocalModel localModel, Matrix4f pose, Matrix3f normal, int light, int overlay) {
@@ -38,6 +39,7 @@ public class WrappedVertexBuffer {
 
         Map<String, WrappedVertexBuffer> children = new HashMap<>();
         Map<String, VertexBuffer> buffers = new HashMap<>();
+        Map<String, ModelTransformer> modelTransformers = new HashMap<>();
 
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
 
@@ -104,11 +106,42 @@ public class WrappedVertexBuffer {
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             RenderSystem.setShaderTexture(0, getTexture(material));
 
+//            ModelTransformer modelTransformer = new ModelTransformer(
+//                    ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
+//                    ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
+//                    ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
+//                    ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
+//                    ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
+//            );
+            ModelTransformer modelTransformer = modelTransformers.get(material);
+            if (modelTransformer == null) {
+                modelTransformer = new ModelTransformer(
+                        ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
+                        ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
+                        ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
+                        ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
+                        ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
+                );
+                modelTransformers.put(material, modelTransformer);
+            }
+
+//            vertexBuffer.bind();
+
+            modelTransformer.transform(
+                    ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
+                    ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
+                    ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
+                    ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
+                    ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType,
+                    context.getPoseMatrix()
+            );
+
             RenderSystem.setShader(GameRenderer::getRendertypeEntityCutoutShader);
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 
             // The index of Lightmap UV or UV2 is 4
             vertexBuffer.bind();
+            GL30.glBindVertexArray(modelTransformer.getTransformedVertexArray());
             GL30.glDisableVertexAttribArray(4);
 
             int lightProcessed = 0xF00000;
@@ -129,7 +162,7 @@ public class WrappedVertexBuffer {
             RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
             shaderInstance.clear();
 
-//            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
+            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
             GL30.glEnableVertexAttribArray(4);
         }
     }
@@ -144,6 +177,9 @@ public class WrappedVertexBuffer {
     private void release() {
         for (VertexBuffer buffer : this.buffers.values()) {
             buffer.close();
+        }
+        for (ModelTransformer modelTransformer : this.modelTransformers.values()) {
+            modelTransformer.release();
         }
     }
 
