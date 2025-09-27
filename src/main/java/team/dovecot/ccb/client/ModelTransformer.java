@@ -3,7 +3,7 @@ package team.dovecot.ccb.client;
 import static org.lwjgl.opengl.GL32.*;
 
 public class ModelTransformer {
-    public static void test() {
+    public static void reload() {
         // Transform shader
         String vertexShaderSource = """
             #version 150

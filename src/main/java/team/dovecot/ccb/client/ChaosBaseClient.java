@@ -34,7 +34,7 @@ public class ChaosBaseClient implements ClientModInitializer {
             public void onResourceManagerReload(ResourceManager resourceManager) {
                 try {
                     // Obj Loader TEST!!!
-                    ModelTransformer.test();
+                    ModelTransformer.reload();
                     testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
 //                    testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/fy1/fy1.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
                 } catch (Exception e) {
