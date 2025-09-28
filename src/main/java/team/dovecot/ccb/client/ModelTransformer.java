@@ -85,6 +85,8 @@ public class ModelTransformer {
     private int transformedVertexBuffer;
     private int transformedIndexBuffer;
     private int vertexCount;
+    private long vertexSize;
+    private long indexSize;
 
     public ModelTransformer(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType) {
         this.transformedVertexArray = glGenVertexArrays();
@@ -92,8 +94,8 @@ public class ModelTransformer {
         this.transformedIndexBuffer = glGenBuffers();
 
         glBindVertexArray(arrayObjectId);
-        long vertexSize = glGetBufferParameteri64(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE);
-        long indexSize = glGetBufferParameteri64(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE);
+        vertexSize = glGetBufferParameteri64(GL_ARRAY_BUFFER, GL_BUFFER_SIZE);
+        indexSize = glGetBufferParameteri64(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE);
         this.vertexCount = Math.toIntExact(vertexSize / 16);
 
         glBindVertexArray(transformedVertexArray);
@@ -178,6 +180,13 @@ public class ModelTransformer {
         glEndTransformFeedback();
         glDisable(GL_RASTERIZER_DISCARD);
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+
+//        glBindVertexArray(transformedVertexArray);
+//        glBindBuffer(GL_ARRAY_BUFFER, transformedVertexBuffer);
+//        glBufferData(GL_ARRAY_BUFFER, vertexSize, GL_DYNAMIC_DRAW);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
+//        System.out.println(glGetatt);
     }
 
     public int getTransformedVertexArray() {
