@@ -91,22 +91,12 @@ public class ModelTransformer {
         this.transformedIndexBuffer = glGenBuffers();
 
         glBindVertexArray(arrayObjectId);
-        int vertexSize = glGetBufferParameteri(GL_ARRAY_BUFFER, GL_BUFFER_SIZE);
-        int indexSize = glGetBufferParameteri(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE);
-//        System.out.println(vertexSize);
-//        System.out.println(indexSize);
+        long vertexSize = glGetBufferParameteri64(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE);
+        long indexSize = glGetBufferParameteri64(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE);
 
         glBindVertexArray(transformedVertexArray);
         glBindBuffer(GL_ARRAY_BUFFER, transformedVertexBuffer);
         glBufferData(GL_ARRAY_BUFFER, vertexSize, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
-
-//        glBindBuffer(GL_COPY_READ_BUFFER, indexBufferId);
-////        glBindBuffer(GL_COPY_WRITE_BUFFER, transformedIndexBuffer);
-//        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_ELEMENT_ARRAY_BUFFER, 0, 0, indexSize);
-//        glBindBuffer(GL_COPY_READ_BUFFER, 0);
-////        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 
         int stride = (3 + 4 + 2 + 2 + 2 + 3) * Float.BYTES;
         int offset = 0;
@@ -141,8 +131,8 @@ public class ModelTransformer {
         glVertexAttribPointer(5, 3, GL_FLOAT, false, stride, offset);
 //        offset += 3 * Float.BYTES;
 
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
-//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
     }
 
     public void transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
@@ -194,8 +184,16 @@ public class ModelTransformer {
 
     public void release() {
         if (transformedVertexArray >= 0) {
-            glDeleteVertexArrays(this.transformedVertexArray);
+            glDeleteVertexArrays(transformedVertexArray);
             transformedVertexArray = -1;
+        }
+        if (transformedVertexBuffer >= 0) {
+            glDeleteBuffers(transformedVertexBuffer);
+            transformedVertexBuffer = -1;
+        }
+        if (transformedIndexBuffer >= 0) {
+            glDeleteBuffers(transformedIndexBuffer);
+            transformedIndexBuffer = -1;
         }
     }
 }
