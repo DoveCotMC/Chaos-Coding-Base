@@ -84,6 +84,7 @@ public class ModelTransformer {
     private int transformedVertexArray;
     private int transformedVertexBuffer;
     private int transformedIndexBuffer;
+    private int vertexCount;
 
     public ModelTransformer(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType) {
         this.transformedVertexArray = glGenVertexArrays();
@@ -93,8 +94,10 @@ public class ModelTransformer {
         glBindVertexArray(arrayObjectId);
         long vertexSize = glGetBufferParameteri64(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE);
         long indexSize = glGetBufferParameteri64(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE);
+        this.vertexCount = Math.toIntExact(vertexSize / 16);
 
         glBindVertexArray(transformedVertexArray);
+
         glBindBuffer(GL_ARRAY_BUFFER, transformedVertexBuffer);
         glBufferData(GL_ARRAY_BUFFER, vertexSize, GL_DYNAMIC_DRAW);
 
@@ -133,6 +136,12 @@ public class ModelTransformer {
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
+
+//        glBindBuffer(GL_COPY_READ_BUFFER, vertexBufferId);
+////        glBindBuffer(GL_COPY_WRITE_BUFFER, transformedVertexBuffer);
+//        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_ARRAY_BUFFER, 0, 0, vertexSize);
+//        glBindBuffer(GL_COPY_READ_BUFFER, 0);
+////        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
     }
 
     public void transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
@@ -147,20 +156,24 @@ public class ModelTransformer {
         if (transformProgram <= 0)
             throw new RuntimeException("Model transformer is not initialized!");
 
+//        if (true)
+//            return;
+
         glUseProgram(transformProgram);
         glBindVertexArray(arrayObjectId);
 
-        int uniformLocation = glGetUniformLocation(transformProgram, "TransformMatrix");
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        transformMatrix.get(buffer);
-        glUniformMatrix4fv(uniformLocation, false, buffer);
+//        int uniformLocation = glGetUniformLocation(transformProgram, "TransformMatrix");
+//        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+//        transformMatrix.get(buffer);
+//        glUniformMatrix4fv(uniformLocation, false, buffer);
 
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, transformedVertexBuffer);
 
         glEnable(GL_RASTERIZER_DISCARD);
         glBeginTransformFeedback(GL_TRIANGLES);
 
-        glDrawElements(GL_TRIANGLES, indexCount, indexType, 0);
+//        glDrawElements(GL_TRIANGLES, indexCount, indexType, 0);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
         glEndTransformFeedback();
         glDisable(GL_RASTERIZER_DISCARD);

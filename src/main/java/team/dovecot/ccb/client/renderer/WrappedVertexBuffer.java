@@ -123,16 +123,16 @@ public class WrappedVertexBuffer {
 //                    ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
 //            );
             ModelTransformer modelTransformer = modelTransformers.get(material);
-//            if (modelTransformer == null) {
-//                modelTransformer = new ModelTransformer(
-//                        ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
-//                        ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
-//                        ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
-//                        ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
-//                        ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
-//                );
-//                modelTransformers.put(material, modelTransformer);
-//            }
+            if (modelTransformer == null) {
+                modelTransformer = new ModelTransformer(
+                        ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
+                        ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
+                        ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
+                        ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
+                        ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
+                );
+                modelTransformers.put(material, modelTransformer);
+            }
 
 //            vertexBuffer.bind();
 
