@@ -36,16 +36,18 @@ public class ModelTransformer {
             out vec3 OutNormal;
 
             void main() {
-                vec4 worldPos = TransformMatrix * vec4(Position, 1.0);
+//                vec4 worldPos = TransformMatrix * vec4(Position, 1.0);
+                vec4 worldPos = vec4(Position, 1.0);
                 OutPosition = worldPos.xyz;
-                OutNormal = mat3(TransformMatrix) * Normal;
+//                OutNormal = mat3(TransformMatrix) * Normal;
+                OutNormal = Normal;
                 OutColor = Color;
                 
                 OutUV0 = UV0;
                 OutUV1 = UV1;
                 OutUV2 = UV2;
                 
-                gl_Position = vec4(0.0);
+                gl_Position = worldPos;
             }
             """;
 
@@ -88,8 +90,23 @@ public class ModelTransformer {
         this.transformedVertexBuffer = glGenBuffers();
         this.transformedIndexBuffer = glGenBuffers();
 
+        glBindVertexArray(arrayObjectId);
+        int vertexSize = glGetBufferParameteri(GL_ARRAY_BUFFER, GL_BUFFER_SIZE);
+        int indexSize = glGetBufferParameteri(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE);
+//        System.out.println(vertexSize);
+//        System.out.println(indexSize);
+
         glBindVertexArray(transformedVertexArray);
         glBindBuffer(GL_ARRAY_BUFFER, transformedVertexBuffer);
+        glBufferData(GL_ARRAY_BUFFER, vertexSize, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
+
+//        glBindBuffer(GL_COPY_READ_BUFFER, indexBufferId);
+////        glBindBuffer(GL_COPY_WRITE_BUFFER, transformedIndexBuffer);
+//        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_ELEMENT_ARRAY_BUFFER, 0, 0, indexSize);
+//        glBindBuffer(GL_COPY_READ_BUFFER, 0);
+////        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 
         int stride = (3 + 4 + 2 + 2 + 2 + 3) * Float.BYTES;
         int offset = 0;
@@ -124,7 +141,8 @@ public class ModelTransformer {
         glVertexAttribPointer(5, 3, GL_FLOAT, false, stride, offset);
 //        offset += 3 * Float.BYTES;
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
     }
 
     public void transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
@@ -144,9 +162,7 @@ public class ModelTransformer {
 
         int uniformLocation = glGetUniformLocation(transformProgram, "TransformMatrix");
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        buffer.position(0);
         transformMatrix.get(buffer);
-        buffer.flip();
         glUniformMatrix4fv(uniformLocation, false, buffer);
 
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, transformedVertexBuffer);
@@ -158,22 +174,11 @@ public class ModelTransformer {
 
         glEndTransformFeedback();
         glDisable(GL_RASTERIZER_DISCARD);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
     }
 
     public int getTransformedVertexArray() {
         return transformedVertexArray;
-    }
-
-    private void bindVertexAttrib(int index, int vbo, int size, int type, boolean normalize) {
-        glEnableVertexAttribArray(index);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glVertexAttribPointer(index, size, type, normalize, 0, 0L);
-    }
-
-    private void bindVertexAttribInt(int index, int vbo, int size) {
-        glEnableVertexAttribArray(index);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glVertexAttribIPointer(index, size, GL_INT, 0, 0L);
     }
 
     public static void close() {
