@@ -27,11 +27,11 @@ public class WrappedVertexBuffer {
     private final Map<String, WrappedVertexBuffer> children;
     private final Map<String, ModelTransformer> modelTransformers;
 
-    private WrappedVertexBuffer(Map<String, VertexBuffer> buffers, Map<String, ResourceLocation> textures, Map<String, WrappedVertexBuffer> children) {
+    private WrappedVertexBuffer(Map<String, VertexBuffer> buffers, Map<String, ResourceLocation> textures, Map<String, WrappedVertexBuffer> children, Map<String, ModelTransformer> modelTransformers) {
         this.buffers = buffers;
         this.textures = textures;
         this.children = children;
-        this.modelTransformers = new HashMap<>();
+        this.modelTransformers = modelTransformers;
     }
 
     public static WrappedVertexBuffer upload(LocalModel localModel, Matrix4f pose, Matrix3f normal, int light, int overlay) {
@@ -84,10 +84,19 @@ public class WrappedVertexBuffer {
 
             // Finalize and Upload
             BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
-            VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-            buffer.bind();
-            buffer.upload(renderedBuffer);
-            buffers.put(materialName, buffer);
+            VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
+            vertexBuffer.bind();
+            vertexBuffer.upload(renderedBuffer);
+            buffers.put(materialName, vertexBuffer);
+
+            ModelTransformer modelTransformer = new ModelTransformer(
+                    ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
+                    ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
+                    ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
+                    ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
+                    ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
+            );
+            modelTransformers.put(materialName, modelTransformer);
         }
 
         for (Map.Entry<String, LocalModel> entry : localModel.getChildren().entrySet()) {
@@ -96,7 +105,7 @@ public class WrappedVertexBuffer {
             children.put(name, upload(child, pose, normal, light, overlay));
         }
 
-        return new WrappedVertexBuffer(buffers, localModel.getTexture(), children);
+        return new WrappedVertexBuffer(buffers, localModel.getTexture(), children, modelTransformers);
     }
 
     public void render(IRenderContext context) {
@@ -114,16 +123,16 @@ public class WrappedVertexBuffer {
 //                    ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
 //            );
             ModelTransformer modelTransformer = modelTransformers.get(material);
-            if (modelTransformer == null) {
-                modelTransformer = new ModelTransformer(
-                        ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
-                        ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
-                        ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
-                        ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
-                        ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
-                );
-                modelTransformers.put(material, modelTransformer);
-            }
+//            if (modelTransformer == null) {
+//                modelTransformer = new ModelTransformer(
+//                        ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
+//                );
+//                modelTransformers.put(material, modelTransformer);
+//            }
 
 //            vertexBuffer.bind();
 
@@ -140,7 +149,7 @@ public class WrappedVertexBuffer {
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 
             // The index of Lightmap UV or UV2 is 4
-            vertexBuffer.bind();
+//            vertexBuffer.bind();
             GL30.glBindVertexArray(modelTransformer.getTransformedVertexArray());
             GL30.glDisableVertexAttribArray(4);
 

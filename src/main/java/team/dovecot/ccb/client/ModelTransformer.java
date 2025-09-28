@@ -2,7 +2,10 @@ package team.dovecot.ccb.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
 import team.dovecot.ccb.common.ChaosBase;
+
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL32.*;
 
@@ -76,14 +79,17 @@ public class ModelTransformer {
         ChaosBase.LOGGER.info("[Model Transformer]: Transform shader successfully loaded.");
     }
 
-    private final int transformedVertexArray;
+    private int transformedVertexArray;
+    private int transformedVertexBuffer;
+    private int transformedIndexBuffer;
 
     public ModelTransformer(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType) {
         this.transformedVertexArray = glGenVertexArrays();
-        System.out.println("New transformer");
+        this.transformedVertexBuffer = glGenBuffers();
+        this.transformedIndexBuffer = glGenBuffers();
 
         glBindVertexArray(transformedVertexArray);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
+        glBindBuffer(GL_ARRAY_BUFFER, transformedVertexBuffer);
 
         int stride = (3 + 4 + 2 + 2 + 2 + 3) * Float.BYTES;
         int offset = 0;
@@ -116,9 +122,9 @@ public class ModelTransformer {
         // Normal
         glEnableVertexAttribArray(5);
         glVertexAttribPointer(5, 3, GL_FLOAT, false, stride, offset);
-        offset += 3 * Float.BYTES;
+//        offset += 3 * Float.BYTES;
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
     }
 
     public void transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
@@ -133,25 +139,25 @@ public class ModelTransformer {
         if (transformProgram <= 0)
             throw new RuntimeException("Model transformer is not initialized!");
 
-//        glBindVertexArray(vertexArray);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+        glUseProgram(transformProgram);
+        glBindVertexArray(arrayObjectId);
 
-//        glUseProgram(transformProgram);
-//
-//        int uniformLocation = glGetUniformLocation(transformProgram, "TransformMatrix");
-//
-//        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-//        buffer.position(0);
-//        transformMatrix.get(buffer);
-//        buffer.flip();
-//        glUniformMatrix4fv(uniformLocation, false, buffer);
+        int uniformLocation = glGetUniformLocation(transformProgram, "TransformMatrix");
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        buffer.position(0);
+        transformMatrix.get(buffer);
+        buffer.flip();
+        glUniformMatrix4fv(uniformLocation, false, buffer);
 
-//        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, transformedVertexBuffer);
-//        glEnable(GL_RASTERIZER_DISCARD);
-//        glBeginTransformFeedback(GL_TRIANGLES);
-//        glDrawElements(GL_TRIANGLES, indexCount, indexType, 0);
-//        glEndTransformFeedback();
-//        glDisable(GL_RASTERIZER_DISCARD);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, transformedVertexBuffer);
+
+        glEnable(GL_RASTERIZER_DISCARD);
+        glBeginTransformFeedback(GL_TRIANGLES);
+
+        glDrawElements(GL_TRIANGLES, indexCount, indexType, 0);
+
+        glEndTransformFeedback();
+        glDisable(GL_RASTERIZER_DISCARD);
     }
 
     public int getTransformedVertexArray() {
@@ -182,6 +188,9 @@ public class ModelTransformer {
     }
 
     public void release() {
-        glDeleteVertexArrays(this.transformedVertexArray);
+        if (transformedVertexArray >= 0) {
+            glDeleteVertexArrays(this.transformedVertexArray);
+            transformedVertexArray = -1;
+        }
     }
 }
