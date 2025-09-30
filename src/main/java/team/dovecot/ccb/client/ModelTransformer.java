@@ -5,6 +5,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import team.dovecot.ccb.common.ChaosBase;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL32.*;
@@ -38,6 +39,7 @@ public class ModelTransformer {
             void main() {
 //                vec4 worldPos = TransformMatrix * vec4(Position, 1.0);
                 vec4 worldPos = vec4(Position, 1.0);
+                gl_Position = worldPos;
                 OutPosition = worldPos.xyz;
 //                OutNormal = mat3(TransformMatrix) * Normal;
                 OutNormal = Normal;
@@ -46,8 +48,6 @@ public class ModelTransformer {
                 OutUV0 = UV0;
                 OutUV1 = UV1;
                 OutUV2 = UV2;
-                
-                gl_Position = worldPos;
             }
             """;
 
@@ -88,7 +88,7 @@ public class ModelTransformer {
     private long vertexSize;
     private long indexSize;
 
-    public ModelTransformer(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType) {
+    public ModelTransformer(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, ByteBuffer indexBuf) {
         this.transformedVertexArray = glGenVertexArrays();
         this.transformedVertexBuffer = glGenBuffers();
         this.transformedIndexBuffer = glGenBuffers();
@@ -101,43 +101,55 @@ public class ModelTransformer {
         glBindVertexArray(transformedVertexArray);
 
         glBindBuffer(GL_ARRAY_BUFFER, transformedVertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, vertexSize, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertexSize, GL_DYNAMIC_COPY);
 
-        int stride = (3 + 4 + 2 + 2 + 2 + 3) * Float.BYTES;
+//        int stride = (3 + 4 + 2 + 2 + 2 + 3) * 4;
+        int stride = 12 + 4 + 8 + 4 + 4 + 3;
         int offset = 0;
 
         // Position
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, offset);
-        offset += 3 * Float.BYTES;
+//        offset += 3 * Float.BYTES;
+        offset += 12;
 
         // Color
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_FLOAT, false, stride, offset);
-        offset += 4 * Float.BYTES;
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, true, stride, offset);
+//        offset += 4 * Float.BYTES;
+        offset += 4;
 
         // UV0
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, false, stride, offset);
-        offset += 2 * Float.BYTES;
+//        offset += 2 * Float.BYTES;
+        offset += 8;
 
         // UV1
         glEnableVertexAttribArray(3);
-        glVertexAttribIPointer(3, 2, GL_INT, stride, offset);
-        offset += 2 * Integer.BYTES;
+        glVertexAttribIPointer(3, 2, GL_SHORT, stride, offset);
+//        offset += 2 * Integer.BYTES;
+        offset += 4;
 
         // UV2
         glEnableVertexAttribArray(4);
-        glVertexAttribIPointer(4, 2, GL_INT, stride, offset);
-        offset += 2 * Integer.BYTES;
+        glVertexAttribIPointer(4, 2, GL_SHORT, stride, offset);
+//        offset += 2 * Integer.BYTES;
+        offset += 4;
 
         // Normal
         glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 3, GL_FLOAT, false, stride, offset);
-//        offset += 3 * Float.BYTES;
+        glVertexAttribPointer(5, 3, GL_BYTE, true, stride, offset);
+        offset += 3;
+
+        // Padding
+//        glEnableVertexAttribArray(6);
+//        glVertexAttribPointer(6, 1, GL_BYTE, false, stride, offset);
+//        offset += 1;
+//        glDisableVertexAttribArray(6);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, transformedIndexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_COPY);
 
 //        glBindBuffer(GL_COPY_READ_BUFFER, vertexBufferId);
 ////        glBindBuffer(GL_COPY_WRITE_BUFFER, transformedVertexBuffer);
@@ -147,11 +159,11 @@ public class ModelTransformer {
     }
 
     public void transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
-        if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(() -> this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, new Matrix4f(transformMatrix)));
-        } else {
-            this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, transformMatrix);
-        }
+//        if (!RenderSystem.isOnRenderThread()) {
+//            RenderSystem.recordRenderCall(() -> this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, new Matrix4f(transformMatrix)));
+//        } else {
+//            this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, transformMatrix);
+//        }
     }
 
     private void _transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
@@ -180,6 +192,7 @@ public class ModelTransformer {
         glEndTransformFeedback();
         glDisable(GL_RASTERIZER_DISCARD);
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+        glBindVertexArray(0);
 
 //        glBindVertexArray(transformedVertexArray);
 //        glBindBuffer(GL_ARRAY_BUFFER, transformedVertexBuffer);

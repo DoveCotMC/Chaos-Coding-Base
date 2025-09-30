@@ -17,6 +17,7 @@ import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,7 @@ public class WrappedVertexBuffer {
 
             // Finalize and Upload
             BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
+            ByteBuffer indexBuffer = renderedBuffer.indexBuffer().duplicate();
             VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
             vertexBuffer.bind();
             vertexBuffer.upload(renderedBuffer);
@@ -94,7 +96,8 @@ public class WrappedVertexBuffer {
                     ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
                     ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
                     ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
-                    ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
+                    ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType,
+                    indexBuffer
             );
             modelTransformers.put(materialName, modelTransformer);
         }
@@ -124,14 +127,15 @@ public class WrappedVertexBuffer {
 //            );
             ModelTransformer modelTransformer = modelTransformers.get(material);
             if (modelTransformer == null) {
-                modelTransformer = new ModelTransformer(
-                        ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
-                        ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
-                        ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
-                        ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
-                        ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
-                );
-                modelTransformers.put(material, modelTransformer);
+//                modelTransformer = new ModelTransformer(
+//                        ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getVertexBufferId(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getIndexBufferId(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getIndexCount(),
+//                        ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType
+//                );
+//                modelTransformers.put(material, modelTransformer);
+                return;
             }
 
 //            vertexBuffer.bind();
