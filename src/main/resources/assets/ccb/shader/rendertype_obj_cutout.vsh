@@ -31,12 +31,14 @@ out vec2 texCoord0;
 out vec4 normal;
 
 void main() {
-    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
+    vec4 positionOut = TransformMat * ProjMat * ModelViewMat * vec4(Position, 1.0);
+    gl_Position = positionOut;
 
-    vertexDistance = fog_distance(ModelViewMat, IViewRotMat * Position, FogShape);
-    vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);
+    vertexDistance = fog_distance(ModelViewMat, IViewRotMat * positionOut, FogShape);
+    vec4 normalOut = TransformMat * vec4(Normal, 0.0).xyz;
+    vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, normalOut.xyz, Color);
     lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);
     overlayColor = texelFetch(Sampler1, UV1, 0);
     texCoord0 = UV0;
-    normal = ProjMat * ModelViewMat * vec4(Normal, 0.0);
+    normal = ProjMat * ModelViewMat * vec4(normalOut.xyz, 0.0);
 }
