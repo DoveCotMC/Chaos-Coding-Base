@@ -138,7 +138,7 @@ public class WrappedVertexBuffer {
                 return;
             }
 
-//            vertexBuffer.bind();
+            vertexBuffer.bind();
 
             modelTransformer.transform(
                     ((AccessorVertexBuffer) vertexBuffer).getArrayObjectId(),

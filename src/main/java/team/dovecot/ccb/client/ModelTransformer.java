@@ -127,15 +127,19 @@ public class ModelTransformer {
 
         // UV1
         glEnableVertexAttribArray(3);
-        glVertexAttribIPointer(3, 2, GL_SHORT, stride, offset);
+//        glVertexAttribIPointer(3, 2, GL_SHORT, stride, offset);
+        glVertexAttribPointer(3, 2, GL_FLOAT, false, stride, offset);
 //        offset += 2 * Integer.BYTES;
-        offset += 4;
+        offset += 8;
+//        offset += 4;
 
         // UV2
         glEnableVertexAttribArray(4);
-        glVertexAttribIPointer(4, 2, GL_SHORT, stride, offset);
+//        glVertexAttribIPointer(4, 2, GL_SHORT, stride, offset);
+        glVertexAttribPointer(4, 2, GL_FLOAT, false, stride, offset);
 //        offset += 2 * Integer.BYTES;
-        offset += 4;
+        offset += 8;
+//        offset += 4;
 
         // Normal
         glEnableVertexAttribArray(5);
@@ -159,11 +163,11 @@ public class ModelTransformer {
     }
 
     public void transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
-//        if (!RenderSystem.isOnRenderThread()) {
-//            RenderSystem.recordRenderCall(() -> this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, new Matrix4f(transformMatrix)));
-//        } else {
-//            this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, transformMatrix);
-//        }
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, new Matrix4f(transformMatrix)));
+        } else {
+            this._transform(arrayObjectId, vertexBufferId, indexBufferId, indexCount, indexType, transformMatrix);
+        }
     }
 
     private void _transform(int arrayObjectId, int vertexBufferId, int indexBufferId, int indexCount, int indexType, Matrix4f transformMatrix) {
@@ -186,8 +190,8 @@ public class ModelTransformer {
         glEnable(GL_RASTERIZER_DISCARD);
         glBeginTransformFeedback(GL_TRIANGLES);
 
-//        glDrawElements(GL_TRIANGLES, indexCount, indexType, 0);
-        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        glDrawElements(GL_TRIANGLES, indexCount, indexType, 0);
+//        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
         glEndTransformFeedback();
         glDisable(GL_RASTERIZER_DISCARD);
