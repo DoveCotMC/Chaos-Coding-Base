@@ -2,11 +2,9 @@ package team.dovecot.ccb.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
-import org.lwjgl.BufferUtils;
 import team.dovecot.ccb.common.ChaosBase;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL32.*;
 

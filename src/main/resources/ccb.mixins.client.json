@@ -6,7 +6,7 @@
     "mixins": [
     ],
     "client": [
-        "accessor.AccessorVertexBuffer"
+        "GlslPreprocessorMixin"
     ],
     "injectors": {
         "defaultRequire": 1

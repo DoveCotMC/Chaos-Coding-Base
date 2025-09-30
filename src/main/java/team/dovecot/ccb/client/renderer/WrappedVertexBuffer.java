@@ -128,12 +128,12 @@ public class WrappedVertexBuffer {
             if (shaderInstance == null)
                 return;
 
-            Renderer.setupShader(shaderInstance, projectionMatrix, modelViewMatrix, ((AccessorVertexBuffer) vertexBuffer).getMode());
-            shaderInstance.apply();
-            RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
-            shaderInstance.clear();
+//            Renderer.setupShader(shaderInstance, projectionMatrix, modelViewMatrix, ((AccessorVertexBuffer) vertexBuffer).getMode());
+//            shaderInstance.apply();
+//            RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
+//            shaderInstance.clear();
 
-//            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
+            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
             GL30.glEnableVertexAttribArray(4);
         }
     }
