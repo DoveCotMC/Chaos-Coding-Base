@@ -10,6 +10,7 @@ import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL32.*;
 
+@Deprecated
 public class ModelTransformer {
     private static int transformProgram = -1;
 

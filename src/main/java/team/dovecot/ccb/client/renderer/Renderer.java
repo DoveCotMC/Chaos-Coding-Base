@@ -52,16 +52,16 @@ public class Renderer {
         instance = null;
     }
 
-    public static void setupShader(ShaderInstance shaderInstance, Matrix4f modelViewMatrix, Matrix4f projectionMatrix, VertexFormat.Mode mode) {
+    public static void setupShader(ShaderInstance shaderInstance, Matrix4f projectionMatrix, Matrix4f modelViewMatrix, VertexFormat.Mode mode) {
         for (int i = 0; i < 12; ++i) {
             int j = RenderSystem.getShaderTexture(i);
             shaderInstance.setSampler("Sampler" + i, j);
         }
-        if (shaderInstance.MODEL_VIEW_MATRIX != null) {
-            shaderInstance.MODEL_VIEW_MATRIX.set(modelViewMatrix);
-        }
         if (shaderInstance.PROJECTION_MATRIX != null) {
             shaderInstance.PROJECTION_MATRIX.set(projectionMatrix);
+        }
+        if (shaderInstance.MODEL_VIEW_MATRIX != null) {
+            shaderInstance.MODEL_VIEW_MATRIX.set(modelViewMatrix);
         }
         if (shaderInstance.INVERSE_VIEW_ROTATION_MATRIX != null) {
             shaderInstance.INVERSE_VIEW_ROTATION_MATRIX.set(RenderSystem.getInverseViewRotationMatrix());
