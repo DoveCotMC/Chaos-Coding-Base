@@ -133,6 +133,7 @@ public class WrappedVertexBuffer {
 //            RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
 //            shaderInstance.clear();
 
+            System.out.println(RenderSystem.getShader().getClass());
             vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
             GL30.glEnableVertexAttribArray(4);
         }
