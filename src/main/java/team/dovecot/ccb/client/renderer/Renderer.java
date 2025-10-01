@@ -17,6 +17,8 @@ import java.util.Map;
 public class Renderer {
     private static Renderer instance = null;
 
+    public static boolean gpuAcceleration = true;
+
     private final Map<ResourceIdentifier, UploadedModel> loadedModels = new HashMap<>();
 
     private Renderer() {

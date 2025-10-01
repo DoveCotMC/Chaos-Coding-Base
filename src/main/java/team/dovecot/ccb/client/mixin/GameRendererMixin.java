@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.client.renderer.ShaderPatcher;
 import team.dovecot.ccb.client.renderer.TransformableShaderInstance;
 import team.dovecot.ccb.common.ChaosBase;
@@ -48,6 +49,9 @@ public class GameRendererMixin {
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void ccbInjectTransformableShaders$reloadShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
+        if (!Renderer.gpuAcceleration)
+            return;
+
         MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
 
         for (String fieldName : shaderFields) {

@@ -7,21 +7,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL30;
-import team.dovecot.ccb.client.mixin.accessor.AccessorVertexBuffer;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.record.Face;
-import team.dovecot.ccb.client.renderer.model.record.Vertex;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class WrappedVertexBuffer {
     private final Map<String, VertexBuffer> buffers;
@@ -45,11 +41,11 @@ public class WrappedVertexBuffer {
         for (Map.Entry<String, List<Face>> entry : localModel.getFaces().entrySet()) {
             String materialName = entry.getKey();
             builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
-            localModel.consume(materialName, builder, pose, normal, overlay, light);
+            localModel.consume(materialName, builder, pose, normal, light, overlay);
 
             // Finalize and Upload
             BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
-            ByteBuffer indexBuffer = renderedBuffer.indexBuffer().duplicate();
+//            ByteBuffer indexBuffer = renderedBuffer.indexBuffer().duplicate();
             VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
             vertexBuffer.bind();
             vertexBuffer.upload(renderedBuffer);
@@ -79,13 +75,15 @@ public class WrappedVertexBuffer {
 
             // The index of Lightmap UV or UV2 is 4
             vertexBuffer.bind();
-            GL30.glDisableVertexAttribArray(4);
+            if (Renderer.gpuAcceleration) {
+                GL30.glDisableVertexAttribArray(4);
 
-            int lightProcessed = 0xF00000;
-            lightProcessed = context.getLight();
+                int lightProcessed = 0xF00000;
+                lightProcessed = context.getLight();
 
-            // Insert Lightmap UV
-            GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
+                // Insert Lightmap UV
+                GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
+            }
 
             ShaderInstance shaderInstance = RenderSystem.getShader();
 
@@ -97,18 +95,22 @@ public class WrappedVertexBuffer {
 //            RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
 //            shaderInstance.clear();
 
-            Uniform transformMat = shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT);
-            if (transformMat != null) {
-                transformMat.set(context.getPoseMatrix());
-                vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shaderInstance);
-                transformMat.set(new Matrix4f());
-            } else {
-                // Compatibility mode, position will not be perfectly transformed.
-                // Example: When shader is enabled.
-                vertexBuffer.drawWithShader(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(context.getPoseMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
-            }
+            if (Renderer.gpuAcceleration) {
+                Uniform transformMat = shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT);
+                if (transformMat != null) {
+                    transformMat.set(context.getPoseMatrix());
+                    vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shaderInstance);
+                    transformMat.set(new Matrix4f());
+                } else {
+                    // Compatibility mode, position will not be perfectly transformed.
+                    // Example: When shader is enabled.
+                    vertexBuffer.drawWithShader(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(context.getPoseMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
+                }
 
-            GL30.glEnableVertexAttribArray(4);
+                GL30.glEnableVertexAttribArray(4);
+            } else {
+//                vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shaderInstance);
+            }
         }
     }
 
