@@ -1,5 +1,6 @@
 package team.dovecot.ccb.client.renderer;
 
+import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
@@ -96,11 +97,14 @@ public class WrappedVertexBuffer {
 //            RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
 //            shaderInstance.clear();
 
-            if (shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT) != null) {
-                Objects.requireNonNull(shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT)).set(context.getPoseMatrix());
+            Uniform transformMat = shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT);
+            if (transformMat != null) {
+                transformMat.set(context.getPoseMatrix());
                 vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shaderInstance);
-                Objects.requireNonNull(shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT)).set(new Matrix4f());
+                transformMat.set(new Matrix4f());
             } else {
+                // Compatibility mode, position will not be perfectly transformed.
+                // Example: When shader is enabled.
                 vertexBuffer.drawWithShader(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(context.getPoseMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
             }
 

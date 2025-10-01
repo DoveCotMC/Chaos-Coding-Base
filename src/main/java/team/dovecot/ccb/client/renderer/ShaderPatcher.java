@@ -3,10 +3,8 @@ package team.dovecot.ccb.client.renderer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceProvider;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
