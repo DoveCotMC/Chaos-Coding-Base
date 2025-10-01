@@ -1,9 +1,12 @@
 package team.dovecot.ccb.client.renderer.model;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import org.joml.*;
 import org.joml.Vector3f;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
@@ -45,21 +48,39 @@ public class LocalModel {
         return faces.size();
     }
 
-    public static Map<String, List<Face>> parseFromRawData(List<Vector3f> positions, List<Vector2f> uvs, List<Vector3f> normals, Map<String, List<List<List<Integer>>>> indices) {
-        Map<String, List<Face>> map = new HashMap<>();
-        for (String material : indices.keySet()) {
-            // Face iteration
-            List<Face> facesWrapped = new ArrayList<>();
-            for (List<List<Integer>> faceIndex : indices.get(material)) {
-                List<Vertex> vertices = new ArrayList<>();
-                for (List<Integer> index : faceIndex) {
-                    vertices.add(new Vertex(positions.get(index.get(0)), uvs.get(index.get(1)), normals.get(index.get(2))));
+    public void consume(String materialName, VertexConsumer consumer, Matrix4f pose, Matrix3f normal, int light, int overlay) {
+        for (Face nonTriangleFace : getFaces().get(materialName)) {
+            for (Face face : nonTriangleFace.asTriangles()) {
+                for (Vertex vertex : face.vertices()) {
+                    // Add vertex
+                    consumer.vertex(
+                            pose,
+                            vertex.pos().x(),
+                            vertex.pos().y(),
+                            vertex.pos().z()
+                    ).color(
+                            1f,
+                            1f,
+                            1f,
+                            1f
+                    ).uv(
+                            // TODO: Configurable flipV?
+                            vertex.uv().x(),
+                            vertex.uv().y()
+                    ).overlayCoords(
+                            overlay
+                    ).uv2(
+                            light & 0xFFFF,
+                            light >> 16 & 0xFFFF
+                    ).normal(
+                            normal,
+                            vertex.normal().x(),
+                            vertex.normal().y(),
+                            vertex.normal().z()
+                    ).endVertex();
                 }
-                facesWrapped.add(new Face(vertices));
             }
-            map.put(material, facesWrapped);
         }
-        return map;
     }
 
     @Override

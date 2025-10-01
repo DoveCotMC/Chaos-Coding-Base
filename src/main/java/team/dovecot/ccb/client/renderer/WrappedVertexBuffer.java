@@ -44,43 +44,9 @@ public class WrappedVertexBuffer {
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
 
         for (Map.Entry<String, List<Face>> entry : localModel.getFaces().entrySet()) {
-            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
             String materialName = entry.getKey();
-            List<Face> faces = entry.getValue();
-
-            for (Face nonTriangleFace : faces) {
-                for (Face face : nonTriangleFace.asTriangles()) {
-                    for (Vertex vertex : face.vertices()) {
-                        // Add vertex
-                        builder.vertex(
-                                pose,
-                                vertex.pos().x(),
-                                vertex.pos().y(),
-                                vertex.pos().z()
-                        ).color(
-                                1f,
-                                1f,
-                                1f,
-                                1f
-                        ).uv(
-                                // TODO: Configurable flipV?
-                                vertex.uv().x(),
-                                vertex.uv().y()
-                        ).overlayCoords(
-                                OverlayTexture.NO_OVERLAY
-                        ).uv2(
-                                0, 0
-//                                light & 0xFFFF,
-//                                light >> 16 & 0xFFFF
-                        ).normal(
-                                normal,
-                                vertex.normal().x(),
-                                vertex.normal().y(),
-                                vertex.normal().z()
-                        ).endVertex();
-                    }
-                }
-            }
+            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
+            localModel.consume(materialName, builder, pose, normal, overlay, light);
 
             // Finalize and Upload
             BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
