@@ -5,7 +5,6 @@ import static team.dovecot.ccb.common.ChaosBase.*;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -177,7 +176,7 @@ public class ObjLoader {
                 }
 
                 // Second iteration, build up faces and groups
-                LocalModel.Builder builder = LocalModel.Builder.empty();
+                LocalModel.Builder builder = LocalModel.Builder.create(modelLocation);
                 for (String group : groupMaterialFaces.keySet()) {
                     builder = builder.pushGroup(group);
                     for (String material : groupMaterialFaces.get(group).keySet()) {

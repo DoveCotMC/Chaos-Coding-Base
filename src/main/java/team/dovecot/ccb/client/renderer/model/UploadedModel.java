@@ -4,45 +4,28 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import team.dovecot.ccb.client.renderer.ModelManager;
+import team.dovecot.ccb.client.renderer.WrappedVertexBuffer;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-// TODO: Currently just wrapping VertexBuffer...
+// bruh this class looks soo useless
 public class UploadedModel {
-    private final Map<String, VertexBuffer> buffer;
-    private final Map<String, AbstractTexture> texture;
-    private final Map<String, UploadedModel> children;
+    private final ResourceLocation location;
 
-    private UploadedModel(Map<String, VertexBuffer> buffer, Map<String, AbstractTexture> texture, Map<String, UploadedModel> children) {
-        this.buffer = buffer;
-        this.texture = texture;
-        this.children = children;
+    private UploadedModel(ResourceLocation location) {
+        this.location = location;
     }
 
     public static UploadedModel upload(LocalModel model) {
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-
-        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.BLOCK);
-
-//        builder.vertex();
-//
-//        ChunkRenderDispatcher
-//        LevelRenderer.renderChunkLayer
-
-        BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
-        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-        vertexBuffer.upload(renderedBuffer);
-
-        return null;
-//        return new UploadedModel(vertexBuffer, null, new ArrayList<>());
+        ModelManager.getInstance().upload(model.getLocation(), WrappedVertexBuffer.upload(model, new Matrix4f(), new Matrix3f(), 0, OverlayTexture.NO_OVERLAY));
+        return new UploadedModel(model.getLocation());
     }
 
     public void release() {
-//        this.buffer.bind();
-//        this.buffer.close();
-//        this.texture.releaseId();
+        ModelManager.getInstance().release(location);
     }
 
     public void drawWithShader() {

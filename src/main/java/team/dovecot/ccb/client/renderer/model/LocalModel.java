@@ -1,35 +1,32 @@
 package team.dovecot.ccb.client.renderer.model;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
-import org.joml.Vector3f;
 import team.dovecot.ccb.client.renderer.model.record.Face;
 import team.dovecot.ccb.client.renderer.model.record.Vertex;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 
 public class LocalModel {
+    private final ResourceLocation location;
     private final Map<String, List<Face>> faces;
     // TODO: Vanilla texture manager
     private final Map<String, ResourceLocation> texture;
     private final Map<String, LocalModel> children;
     private final boolean isRoot;
 
-    private LocalModel(Map<String, List<Face>> faces, Map<String, ResourceLocation> texture, Map<String, LocalModel> children, boolean isRoot) {
+    private LocalModel(ResourceLocation location, Map<String, List<Face>> faces, Map<String, ResourceLocation> texture, Map<String, LocalModel> children, boolean isRoot) {
+        this.location = location;
         this.faces = faces;
         this.texture = texture;
         this.children = children;
         this.isRoot = isRoot;
     }
 
-    public LocalModel(Map<String, LocalModel> children) {
-        this(new HashMap<>(), new HashMap<>(), children, true);
+    public LocalModel(ResourceLocation location, Map<String, LocalModel> children) {
+        this(location, new HashMap<>(), new HashMap<>(), children, true);
     }
 
     public Map<String, ResourceLocation> getTexture() {
@@ -83,6 +80,10 @@ public class LocalModel {
         }
     }
 
+    public ResourceLocation getLocation() {
+        return location;
+    }
+
     @Override
     public String toString() {
         return "LocalModel{" +
@@ -94,6 +95,7 @@ public class LocalModel {
     }
 
     public static class Builder {
+        private final ResourceLocation location;
         private final String name;
 //        private TODO: How to store faces?
         private String material;
@@ -105,11 +107,12 @@ public class LocalModel {
         @Nullable
         private Builder parent;
 
-        private Builder() {
-            this("", null);
+        private Builder(ResourceLocation location) {
+            this(location, "", null);
         }
 
-        public Builder(String name, Builder parent) {
+        public Builder(ResourceLocation location, String name, Builder parent) {
+            this.location = location;
             this.name = name;
             this.textures = new HashMap<>();
             this.material = "";
@@ -119,12 +122,12 @@ public class LocalModel {
             this.parent = parent;
         }
 
-        public static Builder empty() {
-            return new Builder();
+        public static Builder create(ResourceLocation location) {
+            return new Builder(location);
         }
 
         public Builder pushGroup(String groupName) {
-            Builder childBuilder = new Builder(groupName, this);
+            Builder childBuilder = new Builder(location, groupName, this);
             stack.push(childBuilder);
             return childBuilder;
         }
@@ -156,7 +159,7 @@ public class LocalModel {
                 children.put(groupName, builder.build());
             }
 
-            return new LocalModel(faces, textures, children, parent == null);
+            return new LocalModel(location, faces, textures, children, parent == null);
         }
     }
 }
