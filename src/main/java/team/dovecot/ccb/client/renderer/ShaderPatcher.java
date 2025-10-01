@@ -45,44 +45,7 @@ public class ShaderPatcher {
                         "\\bNormal\\b",
                         "normalize(mat3(TransformMat) * Normal)"
                 );
-//        split[1] = split[1]
-//                .replaceAll(
-//                        "vec4(Position, 1.0)",
-//                        "vec4(__Position, 1.0) * TransformMat"
-//                )
-//                .replaceAll(
-//                        "vec4(Normal, 0.0)",
-//                        "vec4(__Normal, 0.0) * TransformMat"
-//                )
-//                .replaceAll(
-//                        "\\bPosition\\b",
-//                        "(vec4(Position, 1.0) * TransformMat).xyz"
-//                )
-//                .replaceAll(
-//                        "\\bNormal\\b",
-//                        "normalize(vec4(Normal, 1.0) * TransformMat).xyz"
-//                )
-//                .replaceAll("__Position", "Position").replaceAll("__Normal", "Normal");
 
-//        split[1] =
-//                split[1]
-//                        .replaceAll(
-//                                "\\bPosition\\b",
-//                                "(_Model_View_Mat * TransformMat * vec4(Position, 1.0)).xyz"
-//                        )
-//                        .replaceAll(
-//                                "\\bNormal\\b",
-//                                "normalize(mat3(_Model_View_Mat * TransformMat) * Normal)"
-//                        )
-//                        .replace(
-//                                "ModelViewMat",
-//                                "mat4(1.0)"
-//                        )
-//                        .replace(
-//                                "_Model_View_Mat",
-//                                "ModelViewMat"
-//                        );
-        System.out.println( split[0] + "void main" + split[1]);
         return split[0] + "void main" + split[1];
     }
 

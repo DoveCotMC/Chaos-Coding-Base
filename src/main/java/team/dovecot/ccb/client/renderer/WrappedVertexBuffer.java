@@ -26,13 +26,11 @@ public class WrappedVertexBuffer {
     private final Map<String, VertexBuffer> buffers;
     private final Map<String, ResourceLocation> textures;
     private final Map<String, WrappedVertexBuffer> children;
-//    private final Map<String, ModelTransformer> modelTransformers;
 
     private WrappedVertexBuffer(Map<String, VertexBuffer> buffers, Map<String, ResourceLocation> textures, Map<String, WrappedVertexBuffer> children) {
         this.buffers = buffers;
         this.textures = textures;
         this.children = children;
-//        this.modelTransformers = modelTransformers;
     }
 
     public static WrappedVertexBuffer upload(LocalModel localModel, Matrix4f pose, Matrix3f normal, int light, int overlay) {
