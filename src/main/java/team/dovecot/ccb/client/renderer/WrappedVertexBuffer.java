@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class WrappedVertexBuffer {
     private final Map<String, VertexBuffer> buffers;
@@ -120,8 +121,6 @@ public class WrappedVertexBuffer {
 
             // Insert Lightmap UV
             GL30.glVertexAttribI2i(4, lightProcessed & 0xFFFF, lightProcessed >> 16 & 0xFFFF);
-            Matrix4f projectionMatrix = context.getPoseMatrix().mul(RenderSystem.getProjectionMatrix());
-            Matrix4f modelViewMatrix = RenderSystem.getModelViewMatrix();
 
             ShaderInstance shaderInstance = RenderSystem.getShader();
 
@@ -133,8 +132,14 @@ public class WrappedVertexBuffer {
 //            RenderSystem.drawElements(((AccessorVertexBuffer) vertexBuffer).getMode().asGLMode, ((AccessorVertexBuffer) vertexBuffer).getIndexCount(), ((AccessorVertexBuffer) vertexBuffer).getIndexType().asGLType);
 //            shaderInstance.clear();
 
-            System.out.println(RenderSystem.getShader().getClass());
-            vertexBuffer.drawWithShader(context.getPoseMatrix().mul(RenderSystem.getModelViewMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
+            if (shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT) != null) {
+                Objects.requireNonNull(shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT)).set(context.getPoseMatrix());
+                vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), shaderInstance);
+                Objects.requireNonNull(shaderInstance.getUniform(TransformableShaderInstance.TRANSFORM_MAT)).set(new Matrix4f());
+            } else {
+                vertexBuffer.drawWithShader(new Matrix4f(RenderSystem.getModelViewMatrix()).mul(context.getPoseMatrix()), RenderSystem.getProjectionMatrix(), shaderInstance);
+            }
+
             GL30.glEnableVertexAttribArray(4);
         }
     }

@@ -1,5 +1,6 @@
 package team.dovecot.ccb.client.mixin;
 
+import com.mojang.blaze3d.shaders.Program;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 import net.minecraft.client.renderer.GameRenderer;
@@ -11,6 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import team.dovecot.ccb.client.renderer.ShaderPatcher;
 import team.dovecot.ccb.client.renderer.TransformableShaderInstance;
 import team.dovecot.ccb.common.ChaosBase;
 
@@ -67,6 +69,11 @@ public class GameRendererMixin {
             ShaderInstance shaderInstance;
             try {
                 shaderInstance = (ShaderInstance) shaderField.get(null);
+
+                if (!shaderInstance.getClass().equals(ShaderInstance.class)) {
+                    ChaosBase.LOGGER.warn("Shader {} has been modified by another mod. Patcher will skip this shader.", shaderInstance.getName());
+                    return;
+                }
             } catch (IllegalAccessException e) {
                 ChaosBase.LOGGER.error("Unable to get shader from field: {} (or {} unmapped)!", resolvedName, fieldName);
                 continue;
@@ -81,7 +88,17 @@ public class GameRendererMixin {
 
             ShaderInstance patchedShader;
             try {
-                patchedShader = new TransformableShaderInstance(resourceProvider, shaderName, shaderInstance.getVertexFormat());
+                // Remove existing programs
+                Program.Type.VERTEX.getPrograms().get(shaderName).close();
+                Program.Type.VERTEX.getPrograms().remove(shaderName);
+                Program.Type.FRAGMENT.getPrograms().get(shaderName).close();
+                Program.Type.FRAGMENT.getPrograms().remove(shaderName);
+
+                patchedShader = new TransformableShaderInstance(
+                        new ShaderPatcher.ResourceProvider(resourceProvider),
+                        shaderName,
+                        shaderInstance.getVertexFormat()
+                );
             } catch (IOException e) {
                 ChaosBase.LOGGER.error("Could not patch shader: {}!", shaderName);
                 continue;

@@ -8,10 +8,9 @@ import net.minecraft.server.packs.resources.ResourceProvider;
 import java.io.IOException;
 
 public class TransformableShaderInstance extends ShaderInstance {
-    public final Uniform TRANSFORM_MAT;
+    public static final String TRANSFORM_MAT = "TransformMat";
 
     public TransformableShaderInstance(ResourceProvider resourceProvider, String string, VertexFormat vertexFormat) throws IOException {
         super(resourceProvider, string, vertexFormat);
-        TRANSFORM_MAT = this.getUniform("TransformMat");
     }
 }

@@ -22,20 +22,20 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
 
         poseStack.pushPose();
 //        poseStack.mulPoseMatrix(new Matrix4f().scale(16, 16, 16));
-        WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, poseStack.last().pose(), poseStack.last().normal(), i, j);
-//        WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, new Matrix4f(), new Matrix3f(), i, j);
+//        WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, poseStack.last().pose(), poseStack.last().normal(), i, j);
+        WrappedVertexBuffer buffer = WrappedVertexBuffer.upload(ChaosBaseClient.testModel, new Matrix4f(), new Matrix3f(), i, j);
 
         buffer.renderAll(new IRenderContext() {
             @Override
             public Matrix4f getPoseMatrix() {
-//                return poseStack.last().pose();
-                return new Matrix4f();
+                return poseStack.last().pose();
+//                return new Matrix4f();
             }
 
             @Override
             public Matrix3f getNormalMatrix() {
-//                return poseStack.last().normal();
-                return new Matrix3f();
+                return poseStack.last().normal();
+//                return new Matrix3f();
             }
 
             @Override
