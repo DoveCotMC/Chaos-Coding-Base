@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.obfuscation.mapping.common.MappingField;
 import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.client.renderer.shader.TransformableShaderLoader;
 import team.dovecot.ccb.client.renderer.shader.TransformableShaderPatcher;
