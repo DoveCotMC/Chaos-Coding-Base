@@ -11,10 +11,11 @@ import team.dovecot.ccb.common.block.CCBBlocks;
 public class ChaosBase implements ModInitializer {
     public static final String MOD_ID = "ccb";
     public static final Logger LOGGER = LogManager.getLogger("Chaos Coding Base");
+    public static boolean loadDevelopmentContent = FabricLoader.getInstance().isDevelopmentEnvironment();
 
     @Override
     public void onInitialize() {
-        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+        if (loadDevelopmentContent) {
             CCBBlocks.init();
             Configurator.setLevel(LOGGER, Level.ALL);
         }

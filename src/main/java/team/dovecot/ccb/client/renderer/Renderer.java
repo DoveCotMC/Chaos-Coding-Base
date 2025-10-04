@@ -46,7 +46,8 @@ public class Renderer {
 
     public static void close() {
         getModelManager().releaseAll();
-        TransformableShaderLoader.closeAll();
+        // This should not be here because it might clear loaded shader
+//        TransformableShaderLoader.closeAll();
         instance = null;
     }
 

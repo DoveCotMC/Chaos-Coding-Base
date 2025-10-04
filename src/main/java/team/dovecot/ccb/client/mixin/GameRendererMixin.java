@@ -5,10 +5,12 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,22 +28,22 @@ import java.util.Map;
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
     private static final List<String> shaderFields = List.of(
-//            "rendertypeEntitySolidShader",
-            "rendertypeEntityCutoutShader"
-//            "rendertypeEntityCutoutNoCullShader",
-//            "rendertypeEntityCutoutNoCullZOffsetShader",
-//            "rendertypeItemEntityTranslucentCullShader",
-//            "rendertypeEntityTranslucentCullShader",
-//            "rendertypeEntityTranslucentShader",
-//            "rendertypeEntityTranslucentEmissiveShader",
-//            "rendertypeEntitySmoothCutoutShader",
-//            "rendertypeBeaconBeamShader",
-//            "rendertypeEntityDecalShader",
-//            "rendertypeEntityNoOutlineShader",
-//            "rendertypeEntityShadowShader",
-//            "rendertypeEntityAlphaShader",
-//            "rendertypeEntityGlintShader",
-//            "rendertypeEntityGlintDirectShader"
+            "rendertypeEntitySolidShader",
+            "rendertypeEntityCutoutShader",
+            "rendertypeEntityCutoutNoCullShader",
+            "rendertypeEntityCutoutNoCullZOffsetShader",
+            "rendertypeItemEntityTranslucentCullShader",
+            "rendertypeEntityTranslucentCullShader",
+            "rendertypeEntityTranslucentShader",
+            "rendertypeEntityTranslucentEmissiveShader",
+            "rendertypeEntitySmoothCutoutShader",
+            "rendertypeBeaconBeamShader",
+            "rendertypeEntityDecalShader",
+            "rendertypeEntityNoOutlineShader",
+            "rendertypeEntityShadowShader",
+            "rendertypeEntityAlphaShader",
+            "rendertypeEntityGlintShader",
+            "rendertypeEntityGlintDirectShader"
     );
 
     @Shadow
@@ -50,13 +52,16 @@ public class GameRendererMixin {
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void ccbInjectTransformableShaders$reloadShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
+        TransformableShaderLoader.closeAll();
         MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
+
         if (!Renderer.injectVanillaShader) {
             for (String fieldName : shaderFields) {
                 Field shaderField;
+                // TODO: How to map or unmap?
                 String resolvedName = resolver.mapClassName("intermediary", fieldName);
                 try {
-                    shaderField = GameRenderer.class.getDeclaredField(resolver.mapClassName("intermediary", fieldName));
+                    shaderField = GameRenderer.class.getDeclaredField(resolvedName);
                 } catch (NoSuchFieldException e) {
                     ChaosBase.LOGGER.error("Shader field {} (or {} unmapped) not found!", resolvedName, fieldName);
                     throw new RuntimeException(e);
@@ -102,6 +107,7 @@ public class GameRendererMixin {
                 }
 
                 TransformableShaderLoader.patchedShaders.put(shaderName, patchedShader);
+                ChaosBase.LOGGER.info("Patched Shader loaded: {}", shaderName);
             }
         } else {
             for (String fieldName : shaderFields) {

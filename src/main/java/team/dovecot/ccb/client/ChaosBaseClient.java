@@ -23,7 +23,7 @@ public class ChaosBaseClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+        if (ChaosBase.loadDevelopmentContent) {
             BlockEntityRendererRegistryImpl.register(CCBBlocks.CCBBlockEntities.TEST_BLOCK_ENTITY, context -> new BlockEntityRendererTest());
         }
 
