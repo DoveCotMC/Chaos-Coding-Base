@@ -78,8 +78,6 @@ public class ObjLoader {
                                                 LOGGER.error("Unknown texture format: " + mapName.substring(0, mapName.lastIndexOf(".")));
                                                 break;
                                             }
-//                                            new SimpleTexture();
-                                            // TODO: Load texture
                                             Optional<InputStream> imageOptional = fileProvider.openFile(rootDir + "/" + mapName);
 
                                             if (imageOptional.isEmpty()) {
@@ -107,7 +105,6 @@ public class ObjLoader {
                                 LOGGER.error("Mtl not found: {}", path + ", loading process interrupted!");
                                 return null;
                             }
-                            System.out.println(rootDir + "/" + tokens[1]);
                             break;
                         }
                         case "v": {

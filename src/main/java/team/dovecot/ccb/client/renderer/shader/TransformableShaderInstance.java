@@ -1,6 +1,5 @@
-package team.dovecot.ccb.client.renderer;
+package team.dovecot.ccb.client.renderer.shader;
 
-import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;

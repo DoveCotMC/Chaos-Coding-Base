@@ -1,6 +1,7 @@
 package team.dovecot.ccb.client.renderer;
 
 import net.minecraft.resources.ResourceLocation;
+import team.dovecot.ccb.client.renderer.buffer.WrappedVertexBuffer;
 
 import java.util.HashMap;
 import java.util.Map;

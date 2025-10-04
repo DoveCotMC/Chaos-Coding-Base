@@ -1,4 +1,4 @@
-package team.dovecot.ccb.client.renderer;
+package team.dovecot.ccb.client.renderer.buffer;
 
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -11,10 +11,13 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL30;
+import team.dovecot.ccb.client.renderer.IRenderContext;
+import team.dovecot.ccb.client.renderer.Renderer;
+import team.dovecot.ccb.client.renderer.shader.TransformableShaderInstance;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.record.Face;
+import team.dovecot.ccb.common.ChaosBase;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +72,7 @@ public class WrappedVertexBuffer {
 
             vertexBuffer.bind();
 
-            RenderSystem.setShader(GameRenderer::getRendertypeEntityCutoutShader);
+            Renderer.setShader(GameRenderer::getRendertypeEntityCutoutShader);
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
 
             // The index of Lightmap UV or UV2 is 4
@@ -86,7 +89,7 @@ public class WrappedVertexBuffer {
             ShaderInstance shaderInstance = RenderSystem.getShader();
 
             if (shaderInstance == null)
-                return;
+                throw new RuntimeException("Shader is null!!!");
 
 //            Renderer.setupShader(shaderInstance, projectionMatrix, modelViewMatrix, ((AccessorVertexBuffer) vertexBuffer).getMode());
 //            shaderInstance.apply();

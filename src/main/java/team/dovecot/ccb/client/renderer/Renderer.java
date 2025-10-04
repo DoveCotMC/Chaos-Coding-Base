@@ -6,16 +6,28 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.joml.Matrix4f;
+import team.dovecot.ccb.client.renderer.buffer.BufferRenderTask;
+import team.dovecot.ccb.client.renderer.model.UploadedModel;
+import team.dovecot.ccb.client.renderer.shader.TransformableShaderLoader;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class Renderer {
     private static Renderer instance = null;
 
-    public static boolean injectVanillaShader = true;
+    public static boolean injectVanillaShader = false;
+    public static String patchedShaderSuffix = ".ccb_patched";
+    private static boolean enableCompatibleMode = false;
 
     private final ModelManager modelManager;
 
+    private List<BufferRenderTask> scheduledRender;
+
     private Renderer() {
         this.modelManager = new ModelManager();
+        this.scheduledRender = new ArrayList<>();
     }
 
     public static Renderer getInstance() {
@@ -34,6 +46,7 @@ public class Renderer {
 
     public static void close() {
         getModelManager().releaseAll();
+        TransformableShaderLoader.closeAll();
         instance = null;
     }
 
@@ -41,6 +54,31 @@ public class Renderer {
         return Renderer.getInstance().modelManager;
     }
 
+    public static void renderModel(UploadedModel model, IRenderContext context) {
+        model.renderAll(context);
+    }
+
+    public static void setShader(Supplier<ShaderInstance> supplier) {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(() -> {
+                _setShader(supplier.get());
+            });
+        } else {
+            _setShader(supplier.get());
+        }
+    }
+
+    private static void _setShader(ShaderInstance shaderInstance) {
+        enableCompatibleMode = !shaderInstance.getClass().equals(ShaderInstance.class);
+
+        if (enableCompatibleMode || injectVanillaShader) {
+            RenderSystem.setShader(() -> shaderInstance);
+        } else {
+            RenderSystem.setShader(() -> TransformableShaderLoader.patchedShaders.get(shaderInstance.getName()));
+        }
+    }
+
+    @Deprecated
     public static void setupShader(ShaderInstance shaderInstance, Matrix4f projectionMatrix, Matrix4f modelViewMatrix, VertexFormat.Mode mode) {
         for (int i = 0; i < 12; ++i) {
             int j = RenderSystem.getShaderTexture(i);

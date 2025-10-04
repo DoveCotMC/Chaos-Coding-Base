@@ -13,8 +13,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import team.dovecot.ccb.client.renderer.Renderer;
-import team.dovecot.ccb.client.renderer.ShaderPatcher;
-import team.dovecot.ccb.client.renderer.TransformableShaderInstance;
+import team.dovecot.ccb.client.renderer.shader.TransformableShaderLoader;
+import team.dovecot.ccb.client.renderer.shader.TransformableShaderPatcher;
+import team.dovecot.ccb.client.renderer.shader.TransformableShaderInstance;
 import team.dovecot.ccb.common.ChaosBase;
 
 import java.io.IOException;
@@ -25,22 +26,22 @@ import java.util.Map;
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
     private static final List<String> shaderFields = List.of(
-            "rendertypeEntitySolidShader",
-            "rendertypeEntityCutoutShader",
-            "rendertypeEntityCutoutNoCullShader",
-            "rendertypeEntityCutoutNoCullZOffsetShader",
-            "rendertypeItemEntityTranslucentCullShader",
-            "rendertypeEntityTranslucentCullShader",
-            "rendertypeEntityTranslucentShader",
-            "rendertypeEntityTranslucentEmissiveShader",
-            "rendertypeEntitySmoothCutoutShader",
-            "rendertypeBeaconBeamShader",
-            "rendertypeEntityDecalShader",
-            "rendertypeEntityNoOutlineShader",
-            "rendertypeEntityShadowShader",
-            "rendertypeEntityAlphaShader",
-            "rendertypeEntityGlintShader",
-            "rendertypeEntityGlintDirectShader"
+//            "rendertypeEntitySolidShader",
+            "rendertypeEntityCutoutShader"
+//            "rendertypeEntityCutoutNoCullShader",
+//            "rendertypeEntityCutoutNoCullZOffsetShader",
+//            "rendertypeItemEntityTranslucentCullShader",
+//            "rendertypeEntityTranslucentCullShader",
+//            "rendertypeEntityTranslucentShader",
+//            "rendertypeEntityTranslucentEmissiveShader",
+//            "rendertypeEntitySmoothCutoutShader",
+//            "rendertypeBeaconBeamShader",
+//            "rendertypeEntityDecalShader",
+//            "rendertypeEntityNoOutlineShader",
+//            "rendertypeEntityShadowShader",
+//            "rendertypeEntityAlphaShader",
+//            "rendertypeEntityGlintShader",
+//            "rendertypeEntityGlintDirectShader"
     );
 
     @Shadow
@@ -49,108 +50,130 @@ public class GameRendererMixin {
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void ccbInjectTransformableShaders$reloadShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
-        if (!Renderer.injectVanillaShader)
-            return;
-
         MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
-
-        for (String fieldName : shaderFields) {
-            boolean success = false;
-            Field shaderField;
-            String resolvedName = resolver.mapClassName("intermediary", fieldName);
-            try {
-                shaderField = GameRenderer.class.getDeclaredField(resolver.mapClassName("intermediary", fieldName));
-            } catch (NoSuchFieldException e) {
-                ChaosBase.LOGGER.error("Shader field {} (or {} unmapped) not found!", resolvedName, fieldName);
-                continue;
-            }
-
-            if (!shaderField.trySetAccessible()) {
-                ChaosBase.LOGGER.error("Unable to access shader field: {} (or {} unmapped)!", resolvedName, fieldName);
-                continue;
-            }
-
-            ShaderInstance shaderInstance;
-            try {
-                shaderInstance = (ShaderInstance) shaderField.get(null);
-
-                if (!shaderInstance.getClass().equals(ShaderInstance.class)) {
-                    ChaosBase.LOGGER.warn("Shader {} has been modified by another mod. Patcher will skip this shader.", shaderInstance.getName());
-                    return;
+        if (!Renderer.injectVanillaShader) {
+            for (String fieldName : shaderFields) {
+                Field shaderField;
+                String resolvedName = resolver.mapClassName("intermediary", fieldName);
+                try {
+                    shaderField = GameRenderer.class.getDeclaredField(resolver.mapClassName("intermediary", fieldName));
+                } catch (NoSuchFieldException e) {
+                    ChaosBase.LOGGER.error("Shader field {} (or {} unmapped) not found!", resolvedName, fieldName);
+                    throw new RuntimeException(e);
                 }
-            } catch (IllegalAccessException e) {
-                ChaosBase.LOGGER.error("Unable to get shader from field: {} (or {} unmapped)!", resolvedName, fieldName);
-                continue;
+
+                if (!shaderField.trySetAccessible()) {
+                    ChaosBase.LOGGER.error("Unable to access shader field: {} (or {} unmapped)!", resolvedName, fieldName);
+                    continue;
+                }
+
+                ShaderInstance shaderInstance;
+                try {
+                    shaderInstance = (ShaderInstance) shaderField.get(null);
+
+                    if (shaderInstance != null) {
+                        if (!shaderInstance.getClass().equals(ShaderInstance.class)) {
+                            ChaosBase.LOGGER.warn("Shader {} has been modified by another mod. Patcher will skip this shader.", shaderInstance.getName());
+                            return;
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    ChaosBase.LOGGER.error("Unable to get shader from field: {} (or {} unmapped)!", resolvedName, fieldName);
+                    throw new RuntimeException(e);
+                }
+
+                String shaderName = shaderInstance.getName();
+
+                if (!this.shaders.containsKey(shaderName)) {
+                    ChaosBase.LOGGER.error("Shader Instance {} is not loaded!", shaderName);
+                    continue;
+                }
+
+                ShaderInstance patchedShader = null;
+                try {
+                    patchedShader = new TransformableShaderInstance(
+                            new TransformableShaderPatcher.ResourceProvider(resourceProvider),
+                            shaderName + Renderer.patchedShaderSuffix,
+                            shaderInstance.getVertexFormat()
+                    );
+                } catch (IOException e) {
+                    ChaosBase.LOGGER.error("Could not patch shader: {}!", shaderName);
+                    throw new RuntimeException(e);
+                }
+
+                TransformableShaderLoader.patchedShaders.put(shaderName, patchedShader);
             }
+        } else {
+            for (String fieldName : shaderFields) {
+                Field shaderField;
+                String resolvedName = resolver.mapClassName("intermediary", fieldName);
+                try {
+                    shaderField = GameRenderer.class.getDeclaredField(resolver.mapClassName("intermediary", fieldName));
+                } catch (NoSuchFieldException e) {
+                    ChaosBase.LOGGER.error("Shader field {} (or {} unmapped) not found!", resolvedName, fieldName);
+                    throw new RuntimeException(e);
+                }
 
-            String shaderName = shaderInstance.getName();
+                if (!shaderField.trySetAccessible()) {
+                    ChaosBase.LOGGER.error("Unable to access shader field: {} (or {} unmapped)!", resolvedName, fieldName);
+                    continue;
+                }
 
-            if (!this.shaders.containsKey(shaderName)) {
-                ChaosBase.LOGGER.error("Shader Instance {} is not loaded!", shaderName);
-                continue;
-            }
+                ShaderInstance shaderInstance;
+                try {
+                    shaderInstance = (ShaderInstance) shaderField.get(null);
 
-            ShaderInstance patchedShader;
-            try {
-                // Remove existing programs
-                Program.Type.VERTEX.getPrograms().get(shaderName).close();
-                Program.Type.VERTEX.getPrograms().remove(shaderName);
-                Program.Type.FRAGMENT.getPrograms().get(shaderName).close();
-                Program.Type.FRAGMENT.getPrograms().remove(shaderName);
+                    if (shaderInstance != null) {
+                        if (!shaderInstance.getClass().equals(ShaderInstance.class)) {
+                            ChaosBase.LOGGER.warn("Shader {} has been modified by another mod. Patcher will skip this shader.", shaderInstance.getName());
+                            return;
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    ChaosBase.LOGGER.error("Unable to get shader from field: {} (or {} unmapped)!", resolvedName, fieldName);
+                    throw new RuntimeException(e);
+                }
 
-                patchedShader = new TransformableShaderInstance(
-                        new ShaderPatcher.ResourceProvider(resourceProvider),
-                        shaderName,
-                        shaderInstance.getVertexFormat()
-                );
-            } catch (IOException e) {
-                ChaosBase.LOGGER.error("Could not patch shader: {}!", shaderName);
-                continue;
-            }
+                String shaderName = shaderInstance.getName();
 
-            try {
-                shaderField.set(null, patchedShader);
-            } catch (IllegalAccessException e) {
-                ChaosBase.LOGGER.error("Could not hijack shader: {}!", shaderName);
-                continue;
-            }
+                if (!this.shaders.containsKey(shaderName)) {
+                    ChaosBase.LOGGER.error("Shader Instance {} is not loaded!", shaderName);
+                    continue;
+                }
 
-            success = patchedShader != null;
+                ShaderInstance patchedShader = null;
+                try {
+                    // Remove existing programs
+                    if (Program.Type.VERTEX.getPrograms().containsKey(shaderName)) {
+                        Program.Type.VERTEX.getPrograms().get(shaderName).close();
+                        Program.Type.VERTEX.getPrograms().remove(shaderName);
+                    }
+                    if (Program.Type.FRAGMENT.getPrograms().containsKey(shaderName)) {
+                        Program.Type.FRAGMENT.getPrograms().get(shaderName).close();
+                        Program.Type.FRAGMENT.getPrograms().remove(shaderName);
+                    }
 
-            if (success) {
+                    patchedShader = new TransformableShaderInstance(
+                            new TransformableShaderPatcher.ResourceProvider(resourceProvider),
+                            shaderName,
+                            shaderInstance.getVertexFormat()
+                    );
+                } catch (IOException e) {
+                    ChaosBase.LOGGER.error("Could not patch shader: {}!", shaderName);
+                    throw new RuntimeException(e);
+                }
+
+                try {
+                    shaderField.set(null, patchedShader);
+                } catch (IllegalAccessException e) {
+                    ChaosBase.LOGGER.error("Could not hijack shader: {}!", shaderName);
+                    throw new RuntimeException(e);
+                }
+
                 this.shaders.get(shaderName).close();
                 this.shaders.remove(shaderName);
                 this.shaders.put(shaderName, patchedShader);
             }
-//            System.out.println(shaderName);
-//            System.out.println(this.shaders.get(shaderName));
         }
-
-//        List<String> toRemove = new ArrayList<>();
-//        for (String shaderName : this.shaders.keySet()) {
-//            if (shaderName.startsWith("rendertype_entity_")) {
-//                System.out.println(shaderName);
-//                toRemove.add(shaderName);
-//            }
-//        }
-//
-//        for (String shaderName : toRemove) {
-//            // Load customised shader
-//            ShaderInstance patchedShader = null;
-//            try {
-//                VertexFormat vertexFormat = this.shaders.get(shaderName).getVertexFormat();
-//                patchedShader = new TransformableShaderInstance(resourceProvider, shaderName, vertexFormat);
-//            } catch (IOException e) {
-//                ChaosBase.LOGGER.error("Failed to load patched shader " + shaderName + "!!!");
-//                throw new RuntimeException(e);
-//            }
-//
-//            System.out.println("Patching shader complete: " + shaderName);
-//
-//            // Store
-//            this.shaders.get(shaderName).close();
-//            this.shaders.remove(shaderName);
-//            this.shaders.put(shaderName, patchedShader);
-//        }
     }
 }

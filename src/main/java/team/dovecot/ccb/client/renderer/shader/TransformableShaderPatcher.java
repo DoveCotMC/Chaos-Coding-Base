@@ -1,19 +1,23 @@
-package team.dovecot.ccb.client.renderer;
+package team.dovecot.ccb.client.renderer.shader;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import team.dovecot.ccb.client.renderer.Renderer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class ShaderPatcher {
+public class TransformableShaderPatcher {
     public static String patchJson(String originalString) {
         JsonObject json = JsonParser.parseString(originalString).getAsJsonObject();
         JsonArray array = json.getAsJsonArray("uniforms");
+
+        json.addProperty("vertex", json.get("vertex").getAsString() + Renderer.patchedShaderSuffix);
+        json.addProperty("fragment", json.get("fragment").getAsString() + Renderer.patchedShaderSuffix);
 
         JsonObject uniform = new JsonObject();
         uniform.addProperty("name", "TransformMat");
@@ -61,6 +65,9 @@ public class ShaderPatcher {
 
         @Override
         public Optional<Resource> getResource(ResourceLocation resourceLocation) {
+            if (resourceLocation.getPath().contains(Renderer.patchedShaderSuffix))
+                resourceLocation = new ResourceLocation(resourceLocation.getNamespace(), resourceLocation.getPath().replace(Renderer.patchedShaderSuffix, ""));
+
             Optional<Resource> parentResource = parent.getResource(resourceLocation);
 
             if (parentResource.isEmpty())

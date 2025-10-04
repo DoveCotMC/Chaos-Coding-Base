@@ -10,6 +10,7 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import team.dovecot.ccb.client.ChaosBaseClient;
 import team.dovecot.ccb.client.renderer.IRenderContext;
+import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.common.block.entity.BlockEntityTest;
 
 public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityTest> {
@@ -23,7 +24,8 @@ public class BlockEntityRendererTest implements BlockEntityRenderer<BlockEntityT
         poseStack.pushPose();
         poseStack.mulPoseMatrix(new Matrix4f().translate(new Vector3f(0.5f, 0.0f, 0.5f)).scale(8, 8, 8));
 
-        ChaosBaseClient.testModelUploaded.renderAll(new IRenderContext() {
+//        ChaosBaseClient.testModelUploaded.renderAll(new IRenderContext() {
+        Renderer.renderModel(ChaosBaseClient.testModelUploaded, new IRenderContext() {
             @Override
             public Matrix4f getPoseMatrix() {
                 return poseStack.last().pose();

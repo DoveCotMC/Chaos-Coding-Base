@@ -1,17 +1,14 @@
 package team.dovecot.ccb.client.renderer.model;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import team.dovecot.ccb.client.renderer.IRenderContext;
-import team.dovecot.ccb.client.renderer.ModelManager;
 import team.dovecot.ccb.client.renderer.Renderer;
-import team.dovecot.ccb.client.renderer.WrappedVertexBuffer;
+import team.dovecot.ccb.client.renderer.buffer.WrappedVertexBuffer;
 
 // bruh this class looks soo useless
 public class UploadedModel {
