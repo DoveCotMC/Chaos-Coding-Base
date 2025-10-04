@@ -9,14 +9,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import team.dovecot.ccb.client.block.entity.BlockEntityRendererTest;
+import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.ObjLoader;
+import team.dovecot.ccb.client.renderer.model.UploadedModel;
 import team.dovecot.ccb.common.ChaosBase;
 import team.dovecot.ccb.common.block.CCBBlocks;
 import team.dovecot.ccb.common.file.VanillaAssetsFileProvider;
 
 public class ChaosBaseClient implements ClientModInitializer {
     public static LocalModel testModel = null;
+    public static UploadedModel testModelUploaded = null;
 
     @Override
     public void onInitializeClient() {
@@ -33,10 +36,15 @@ public class ChaosBaseClient implements ClientModInitializer {
             @Override
             public void onResourceManagerReload(ResourceManager resourceManager) {
                 try {
+                    Renderer.reload();
                     // Obj Loader TEST!!!
 //                    ModelTransformer.reload();
                     testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
 //                    testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/fy1/fy1.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
+//                    testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/kiha54_501/kiha54_501.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
+                    if (testModel != null) {
+                        testModelUploaded = UploadedModel.upload(testModel);
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

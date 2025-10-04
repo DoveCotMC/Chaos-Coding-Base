@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL32.*;
 
+// Transform feedback test
 @Deprecated
 public class ModelTransformer {
     private static int transformProgram = -1;

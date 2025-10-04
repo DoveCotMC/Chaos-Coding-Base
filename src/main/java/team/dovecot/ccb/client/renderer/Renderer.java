@@ -5,23 +5,17 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import team.dovecot.ccb.client.mixin.accessor.AccessorVertexBuffer;
-import team.dovecot.ccb.client.renderer.model.ResourceIdentifier;
-import team.dovecot.ccb.client.renderer.model.UploadedModel;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Renderer {
     private static Renderer instance = null;
 
-    public static boolean gpuAcceleration = true;
+    public static boolean injectVanillaShader = true;
 
-    private final Map<ResourceIdentifier, UploadedModel> loadedModels = new HashMap<>();
+    private final ModelManager modelManager;
 
     private Renderer() {
+        this.modelManager = new ModelManager();
     }
 
     public static Renderer getInstance() {
@@ -38,20 +32,13 @@ public class Renderer {
         instance = new Renderer();
     }
 
-    @Nullable
-    public UploadedModel getModel(ResourceIdentifier identifier) {
-        return loadedModels.get(identifier);
-    }
-
-    private void releaseResources() {
-        for (UploadedModel model : loadedModels.values()) {
-            model.release();
-        }
-    }
-
     public static void close() {
-        instance.releaseResources();
+        getModelManager().releaseAll();
         instance = null;
+    }
+
+    public static ModelManager getModelManager() {
+        return Renderer.getInstance().modelManager;
     }
 
     public static void setupShader(ShaderInstance shaderInstance, Matrix4f projectionMatrix, Matrix4f modelViewMatrix, VertexFormat.Mode mode) {

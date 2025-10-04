@@ -49,7 +49,7 @@ public class GameRendererMixin {
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void ccbInjectTransformableShaders$reloadShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
-        if (!Renderer.gpuAcceleration)
+        if (!Renderer.injectVanillaShader)
             return;
 
         MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
