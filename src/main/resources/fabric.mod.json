@@ -10,14 +10,11 @@
   "icon": "assets/ccb/icon.png",
   "environment": "*",
   "entrypoints": {
-    "fabric-datagen": [
-      "team.dovecot.ccb.datagen.ChaosBaseDataGenerator"
-    ],
     "client": [
-      "team.dovecot.ccb.client.ChaosBaseClient"
+        "team.dovecotmc.ccb.entries.ChaosBaseClient"
     ],
     "main": [
-      "team.dovecot.ccb.common.ChaosBase"
+      "team.dovecotmc.ccb.common.ChaosBase"
     ]
   },
   "mixins": [
