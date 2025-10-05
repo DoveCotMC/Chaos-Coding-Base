@@ -70,9 +70,7 @@ public class Renderer {
 
     public static void setShader(Supplier<ShaderInstance> supplier) {
         if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(() -> {
-                _setShader(supplier.get());
-            });
+            RenderSystem.recordRenderCall(() -> _setShader(supplier.get()));
         } else {
             _setShader(supplier.get());
         }
