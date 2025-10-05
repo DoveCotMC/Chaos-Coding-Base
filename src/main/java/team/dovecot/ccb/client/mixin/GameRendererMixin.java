@@ -21,6 +21,7 @@ import team.dovecot.ccb.common.ChaosBase;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +84,78 @@ public abstract class GameRendererMixin {
                 ChaosBase.LOGGER.info("Patched Shader loaded: {}", shaderName);
             }
         } else {
+            for (String shaderName : TransformableShaderLoader.SHADER_NAMES) {
+                Field[] fields = GameRenderer.class.getDeclaredFields();
+                for (Field shaderField : fields) {
+                    // Shader fields are static
+                    if (!Modifier.isStatic(shaderField.getModifiers()))
+                        continue;
+
+                    if (shaderField.getType().equals(ShaderInstance.class)) {
+                        if (!shaderField.trySetAccessible()) {
+                            ChaosBase.LOGGER.error("Unable to access shader {} field: {}!", shaderName, shaderField.getName());
+                            continue;
+                        }
+
+                        ShaderInstance shaderInstance;
+                        try {
+                            shaderInstance = (ShaderInstance) shaderField.get(null);
+
+                            if (shaderInstance != null) {
+                                if (!shaderInstance.getClass().equals(ShaderInstance.class)) {
+                                    ChaosBase.LOGGER.warn("Shader {} has been modified by another mod. Patcher will skip this shader.", shaderInstance.getName());
+                                    return;
+                                }
+                            }
+                        } catch (IllegalAccessException e) {
+                            ChaosBase.LOGGER.error("Unable to get shader {} from field: {}!", shaderName, shaderField.getName());
+                            throw new RuntimeException(e);
+                        }
+
+                        if (!shaderInstance.getName().equals(shaderName))
+                            continue;
+
+                        if (!this.shaders.containsKey(shaderName)) {
+                            ChaosBase.LOGGER.error("Shader Instance {} is not loaded!", shaderName);
+                            continue;
+                        }
+
+                        ShaderInstance patchedShader;
+                        try {
+                            // Remove existing programs
+                            if (Program.Type.VERTEX.getPrograms().containsKey(shaderName)) {
+                                Program.Type.VERTEX.getPrograms().get(shaderName).close();
+                                Program.Type.VERTEX.getPrograms().remove(shaderName);
+                            }
+                            if (Program.Type.FRAGMENT.getPrograms().containsKey(shaderName)) {
+                                Program.Type.FRAGMENT.getPrograms().get(shaderName).close();
+                                Program.Type.FRAGMENT.getPrograms().remove(shaderName);
+                            }
+
+                            patchedShader = new TransformableShaderInstance(
+                                    new TransformableShaderPatcher.ResourceProvider(resourceProvider),
+                                    shaderName,
+                                    shaderInstance.getVertexFormat()
+                            );
+                        } catch (IOException e) {
+                            ChaosBase.LOGGER.error("Could not patch shader: {}!", shaderName);
+                            throw new RuntimeException(e);
+                        }
+
+                        try {
+                            shaderField.set(null, patchedShader);
+                        } catch (IllegalAccessException e) {
+                            ChaosBase.LOGGER.error("Could not hijack shader: {}!", shaderName);
+                            throw new RuntimeException(e);
+                        }
+
+                        this.shaders.get(shaderName).close();
+                        this.shaders.remove(shaderName);
+                        this.shaders.put(shaderName, patchedShader);
+                    }
+                }
+            }
+
             // TODO: Deprecated
             for (String fieldName : shaderFields) {
                 Field shaderField;

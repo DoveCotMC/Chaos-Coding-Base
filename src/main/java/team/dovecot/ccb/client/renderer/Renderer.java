@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 public class Renderer {
     private static Renderer instance = null;
 
-    public static boolean injectVanillaShader = false;
+    public static final boolean injectVanillaShader = false;
     public static String patchedShaderSuffix = ".ccb_patched";
     private static boolean enableCompatibleMode = false;
 
