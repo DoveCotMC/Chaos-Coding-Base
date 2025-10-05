@@ -5,16 +5,14 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.obfuscation.mapping.common.MappingField;
 import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.client.renderer.shader.TransformableShaderLoader;
 import team.dovecot.ccb.client.renderer.shader.TransformableShaderPatcher;
@@ -27,29 +25,33 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(GameRenderer.class)
-public class GameRendererMixin {
+public abstract class GameRendererMixin {
+    @Deprecated
     private static final List<String> shaderFields = List.of(
-            "rendertypeEntitySolidShader",
-            "rendertypeEntityCutoutShader",
-            "rendertypeEntityCutoutNoCullShader",
-            "rendertypeEntityCutoutNoCullZOffsetShader",
-            "rendertypeItemEntityTranslucentCullShader",
-            "rendertypeEntityTranslucentCullShader",
-            "rendertypeEntityTranslucentShader",
-            "rendertypeEntityTranslucentEmissiveShader",
-            "rendertypeEntitySmoothCutoutShader",
-            "rendertypeBeaconBeamShader",
-            "rendertypeEntityDecalShader",
-            "rendertypeEntityNoOutlineShader",
-            "rendertypeEntityShadowShader",
-            "rendertypeEntityAlphaShader",
-            "rendertypeEntityGlintShader",
-            "rendertypeEntityGlintDirectShader"
+//            "rendertypeEntitySolidShader",
+//            "rendertypeEntityCutoutShader",
+//            "rendertypeEntityCutoutNoCullShader",
+//            "rendertypeEntityCutoutNoCullZOffsetShader",
+//            "rendertypeItemEntityTranslucentCullShader",
+//            "rendertypeEntityTranslucentCullShader",
+//            "rendertypeEntityTranslucentShader",
+//            "rendertypeEntityTranslucentEmissiveShader",
+//            "rendertypeEntitySmoothCutoutShader",
+//            "rendertypeBeaconBeamShader",
+//            "rendertypeEntityDecalShader",
+//            "rendertypeEntityNoOutlineShader",
+//            "rendertypeEntityShadowShader",
+//            "rendertypeEntityAlphaShader",
+//            "rendertypeEntityGlintShader",
+//            "rendertypeEntityGlintDirectShader"
     );
 
     @Shadow
     @Final
     private Map<String, ShaderInstance> shaders;
+
+    @Shadow
+    public abstract @Nullable ShaderInstance getShader(@Nullable String string);
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void ccbInjectTransformableShaders$reloadShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
@@ -57,38 +59,8 @@ public class GameRendererMixin {
         MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
 
         if (!Renderer.injectVanillaShader) {
-            for (String fieldName : shaderFields) {
-                Field shaderField;
-                // TODO: How to map or unmap?
-                String resolvedName = resolver.mapClassName("intermediary", fieldName);
-                try {
-                    shaderField = GameRenderer.class.getDeclaredField(resolvedName);
-                } catch (NoSuchFieldException e) {
-                    ChaosBase.LOGGER.error("Shader field {} (or {} unmapped) not found!", resolvedName, fieldName);
-                    throw new RuntimeException(e);
-                }
-
-                if (!shaderField.trySetAccessible()) {
-                    ChaosBase.LOGGER.error("Unable to access shader field: {} (or {} unmapped)!", resolvedName, fieldName);
-                    continue;
-                }
-
-                ShaderInstance shaderInstance;
-                try {
-                    shaderInstance = (ShaderInstance) shaderField.get(null);
-
-                    if (shaderInstance != null) {
-                        if (!shaderInstance.getClass().equals(ShaderInstance.class)) {
-                            ChaosBase.LOGGER.warn("Shader {} has been modified by another mod. Patcher will skip this shader.", shaderInstance.getName());
-                            return;
-                        }
-                    }
-                } catch (IllegalAccessException e) {
-                    ChaosBase.LOGGER.error("Unable to get shader from field: {} (or {} unmapped)!", resolvedName, fieldName);
-                    throw new RuntimeException(e);
-                }
-
-                String shaderName = shaderInstance.getName();
+            for (String shaderName : TransformableShaderLoader.SHADER_NAMES) {
+                ShaderInstance shaderInstance = getShader(shaderName);
 
                 if (!this.shaders.containsKey(shaderName)) {
                     ChaosBase.LOGGER.error("Shader Instance {} is not loaded!", shaderName);
@@ -107,10 +79,11 @@ public class GameRendererMixin {
                     throw new RuntimeException(e);
                 }
 
-                TransformableShaderLoader.patchedShaders.put(shaderName, patchedShader);
+                TransformableShaderLoader.PATCHED_SHADERS.put(shaderName, patchedShader);
                 ChaosBase.LOGGER.info("Patched Shader loaded: {}", shaderName);
             }
         } else {
+            // TODO: Deprecated
             for (String fieldName : shaderFields) {
                 Field shaderField;
                 String resolvedName = resolver.mapClassName("intermediary", fieldName);

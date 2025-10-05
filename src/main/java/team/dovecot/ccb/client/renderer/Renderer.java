@@ -75,7 +75,7 @@ public class Renderer {
         if (enableCompatibleMode || injectVanillaShader) {
             RenderSystem.setShader(() -> shaderInstance);
         } else {
-            RenderSystem.setShader(() -> TransformableShaderLoader.patchedShaders.get(shaderInstance.getName()));
+            RenderSystem.setShader(() -> TransformableShaderLoader.PATCHED_SHADERS.get(shaderInstance.getName()));
         }
     }
 
