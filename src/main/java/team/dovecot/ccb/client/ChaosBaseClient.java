@@ -5,10 +5,14 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.fabric.impl.client.rendering.BlockEntityRendererRegistryImpl;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import team.dovecot.ccb.client.block.entity.BlockEntityRendererTest;
+import team.dovecot.ccb.client.renderer.IRenderContext;
 import team.dovecot.ccb.client.renderer.Renderer;
 import team.dovecot.ccb.client.renderer.model.LocalModel;
 import team.dovecot.ccb.client.renderer.model.ObjLoader;
@@ -26,6 +30,13 @@ public class ChaosBaseClient implements ClientModInitializer {
         if (ChaosBase.loadDevelopmentContent) {
             BlockEntityRendererRegistryImpl.register(CCBBlocks.CCBBlockEntities.TEST_BLOCK_ENTITY, context -> new BlockEntityRendererTest());
         }
+
+        // Test
+        Renderer.registerLevelRenderTask(new ResourceLocation("ccb", "test"), (poseStack, camera, gameRenderer, lightTexture) -> {
+            poseStack.pushPose();
+            Renderer.renderModel(testModelUploaded, () -> poseStack.last().pose());
+            poseStack.popPose();
+        });
 
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override

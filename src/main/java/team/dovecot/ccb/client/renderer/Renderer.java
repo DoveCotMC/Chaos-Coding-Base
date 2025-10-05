@@ -19,9 +19,13 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class Renderer {
+    public static final int LIGHT_FULL_BRIGHT = 0xF000F0;
+    public static final int LIGHT_FULL_BRIGHT_BLOCK = 0xF000E0;
+    public static final int LIGHT_DEFAULT = 0xF00000;
+    private static final Map<ResourceLocation, ILevelRenderTask> LEVEL_RENDER_TASKS = new HashMap<>();
+
     private static Renderer instance = null;
 
-    private static final Map<ResourceLocation, ILevelRenderTask> LEVEL_RENDER_TASKS = new HashMap<>();
     public static final boolean injectVanillaShader = false;
     public static String patchedShaderSuffix = ".ccb_patched";
 
@@ -60,6 +64,7 @@ public class Renderer {
     }
 
     public static void renderModel(UploadedModel model, IRenderContext context) {
+        RenderSystem.enableDepthTest();
         model.renderAll(context);
     }
 

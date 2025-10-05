@@ -27,6 +27,10 @@ public abstract class MixinLevelRender {
     private void renderLevel$ccbRenderTask(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci) {
         for (ResourceLocation location : Renderer.getRenderTasks().keySet()) {
             ILevelRenderTask task = Renderer.getRenderTasks().get(location);
+            poseStack.pushPose();
+            poseStack.mulPoseMatrix(new Matrix4f().translate((float) -camera.getPosition().x(), (float) -camera.getPosition().y(), (float) -camera.getPosition().z()));
+            task.render(poseStack, camera, gameRenderer, lightTexture);
+            poseStack.popPose();
         }
     }
 }
