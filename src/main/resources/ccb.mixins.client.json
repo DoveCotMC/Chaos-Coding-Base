@@ -6,12 +6,13 @@
     "mixins": [
     ],
     "client": [
-        "GameRendererMixin"
+        "MixinGameRenderer",
+        "MixinLevelRender"
     ],
     "injectors": {
         "defaultRequire": 1
     },
     "overwrites": {
-        "requireAnnotations": false
+        "requireAnnotations": true
     }
 }

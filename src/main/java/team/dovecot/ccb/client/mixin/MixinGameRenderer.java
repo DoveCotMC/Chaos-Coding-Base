@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(GameRenderer.class)
-public abstract class GameRendererMixin {
+public abstract class MixinGameRenderer {
     @Deprecated
     private static final List<String> shaderFields = List.of(
 //            "rendertypeEntitySolidShader",
@@ -55,7 +55,7 @@ public abstract class GameRendererMixin {
     public abstract @Nullable ShaderInstance getShader(@Nullable String string);
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
-    private void ccbInjectTransformableShaders$reloadShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
+    private void reloadShaders$ccbInjectTransformableShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
         TransformableShaderLoader.closeAll();
         MappingResolver resolver = FabricLoader.getInstance().getMappingResolver();
 

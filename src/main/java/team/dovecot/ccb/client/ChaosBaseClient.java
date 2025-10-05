@@ -38,10 +38,7 @@ public class ChaosBaseClient implements ClientModInitializer {
                 try {
                     Renderer.reload();
                     // Obj Loader TEST!!!
-//                    ModelTransformer.reload();
                     testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/teapot/teapot.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
-//                    testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/fy1/fy1.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
-//                    testModel = ObjLoader.load(new ResourceLocation(ChaosBase.MOD_ID, "model/obj/utah_teapot"), "model/kiha54_501/kiha54_501.obj", new VanillaAssetsFileProvider(ChaosBase.MOD_ID, resourceManager));
                     if (testModel != null) {
                         testModelUploaded = UploadedModel.upload(testModel);
                     }

@@ -87,6 +87,10 @@ public class Renderer {
         LEVEL_RENDER_TASKS.put(location, task);
     }
 
+    public static Map<ResourceLocation, ILevelRenderTask> getRenderTasks() {
+        return LEVEL_RENDER_TASKS;
+    }
+
     @Deprecated
     public static void setupShader(ShaderInstance shaderInstance, Matrix4f projectionMatrix, Matrix4f modelViewMatrix, VertexFormat.Mode mode) {
         for (int i = 0; i < 12; ++i) {
