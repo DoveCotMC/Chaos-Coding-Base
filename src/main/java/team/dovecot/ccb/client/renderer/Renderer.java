@@ -5,21 +5,25 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import team.dovecot.ccb.client.renderer.buffer.BufferRenderTask;
 import team.dovecot.ccb.client.renderer.model.UploadedModel;
 import team.dovecot.ccb.client.renderer.shader.TransformableShaderLoader;
+import team.dovecot.ccb.client.renderer.tasks.ILevelRenderTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class Renderer {
     private static Renderer instance = null;
 
+    private static final Map<ResourceLocation, ILevelRenderTask> LEVEL_RENDER_TASKS = new HashMap<>();
     public static final boolean injectVanillaShader = false;
     public static String patchedShaderSuffix = ".ccb_patched";
-    private static boolean enableCompatibleMode = false;
 
     private final ModelManager modelManager;
 
@@ -70,13 +74,17 @@ public class Renderer {
     }
 
     private static void _setShader(ShaderInstance shaderInstance) {
-        enableCompatibleMode = !shaderInstance.getClass().equals(ShaderInstance.class);
+        boolean enableCompatibleMode = !shaderInstance.getClass().equals(ShaderInstance.class);
 
         if (enableCompatibleMode || injectVanillaShader) {
             RenderSystem.setShader(() -> shaderInstance);
         } else {
             RenderSystem.setShader(() -> TransformableShaderLoader.PATCHED_SHADERS.get(shaderInstance.getName()));
         }
+    }
+
+    public static void registerLevelRenderTask(ResourceLocation location, ILevelRenderTask task) {
+        LEVEL_RENDER_TASKS.put(location, task);
     }
 
     @Deprecated
