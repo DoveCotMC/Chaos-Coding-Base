@@ -33,4 +33,15 @@ public abstract class MixinLevelRender {
             poseStack.popPose();
         }
     }
+
+    @Inject(
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/multiplayer/ClientLevel;entitiesForRendering()Ljava/lang/Iterable;",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void renderLevel$ccbHitboxRender(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci) {
+    }
 }

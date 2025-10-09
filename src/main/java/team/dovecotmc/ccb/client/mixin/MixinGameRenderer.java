@@ -3,6 +3,7 @@ package team.dovecotmc.ccb.client.mixin;
 import com.mojang.blaze3d.shaders.Program;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
@@ -53,6 +54,10 @@ public abstract class MixinGameRenderer {
 
     @Shadow
     public abstract @Nullable ShaderInstance getShader(@Nullable String string);
+
+    @Shadow
+    @Final
+    private Minecraft minecraft;
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void reloadShaders$ccbInjectTransformableShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
@@ -228,5 +233,13 @@ public abstract class MixinGameRenderer {
                 this.shaders.put(shaderName, patchedShader);
             }
         }
+    }
+
+    @Inject(
+            method = "pick",
+            at = @At("TAIL")
+    )
+    private void pick$ccbObbHitTest(float f, CallbackInfo ci) {
+//        this.minecraft.hitResult = null;
     }
 }
