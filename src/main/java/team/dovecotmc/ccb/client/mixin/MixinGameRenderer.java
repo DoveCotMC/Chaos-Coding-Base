@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,9 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import team.dovecotmc.ccb.client.hitbox.ClientBoundInteractionEntity;
-import team.dovecotmc.ccb.client.hitbox.HitTesting;
-import team.dovecotmc.ccb.client.hitbox.ObbHitResult;
+import team.dovecotmc.ccb.client.hitbox.HitboxManager;
 import team.dovecotmc.ccb.client.renderer.Renderer;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderLoader;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderPatcher;
@@ -246,6 +243,6 @@ public abstract class MixinGameRenderer {
     private void pick$ccbObbHitTest(float f, CallbackInfo ci) {
 //        if (this.minecraft.hitResult.getType().equals(HitResult.Type.BLOCK))
 //            this.minecraft.hitResult = new ObbHitResult(new ClientBoundInteractionEntity(this.minecraft.level));
-        HitTesting.pick(Minecraft.getInstance().player);
+        HitboxManager.pick(Minecraft.getInstance().player);
     }
 }

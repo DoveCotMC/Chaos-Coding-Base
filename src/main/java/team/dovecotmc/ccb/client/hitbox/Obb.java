@@ -1,5 +1,6 @@
 package team.dovecotmc.ccb.client.hitbox;
 
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 import org.joml.*;
 
@@ -153,10 +154,10 @@ public class Obb {
     }
 
     public @Nullable Vector3d rayIntersect(Vector3d rayOrigin, Vector3d rayDirection) {
-        rayOrigin.fma(0.01, rayDirection);
+        if (Minecraft.getInstance().player == null)
+            return null;
 
-//        if (contains(rayOrigin))
-//            return rayOrigin;
+        rayOrigin.fma(0.01, rayDirection);
 
         Vector3d p = new Vector3d(center).sub(rayOrigin);
         double tMin = -Double.MAX_VALUE;
@@ -187,6 +188,11 @@ public class Obb {
         }
 
         double hitDistance = (tMin >= 0) ? tMin : tMax;
+        double maxPickDistance = Minecraft.getInstance().player.isCreative() ? 5.0 : 4.5;
+
+        if (Minecraft.getInstance().player != null && hitDistance > maxPickDistance)
+            return null;
+
         return new Vector3d(rayDirection).mul(hitDistance).add(rayOrigin);
     }
 

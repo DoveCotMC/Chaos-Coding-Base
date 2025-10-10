@@ -9,9 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix4f;
@@ -22,7 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import team.dovecotmc.ccb.client.hitbox.ObbHitResult;
+import team.dovecotmc.ccb.client.hitbox.CCBHitResult;
 import team.dovecotmc.ccb.client.mixin.accessor.AccessorLevelRenderer;
 import team.dovecotmc.ccb.client.renderer.Renderer;
 import team.dovecotmc.ccb.client.renderer.tasks.ILevelRenderTask;
@@ -66,7 +64,7 @@ public abstract class MixinLevelRender {
             )
     )
     private void renderLevel$ccbRenderObbHitOutlines(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci) {
-        if (Minecraft.getInstance().hitResult instanceof ObbHitResult hitResult) {
+        if (Minecraft.getInstance().hitResult instanceof CCBHitResult hitResult) {
             poseStack.pushPose();
 
             Vector3f reverseCameraPos = camera.getPosition().toVector3f().mul(-1);

@@ -9,28 +9,24 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 
 public class ClientBoundInteractionEntity extends Entity {
-    public ClientBoundInteractionEntity(Level level) {
-        super(EntityType.INTERACTION, level);
-    }
+    private final InteractObject object;
 
-    @Override
-    public InteractionResult interact(Player player, InteractionHand interactionHand) {
-        System.out.println("Interact: " + player.getName());
-        return super.interact(player, interactionHand);
+    public ClientBoundInteractionEntity(Level level, InteractObject object) {
+        super(EntityType.INTERACTION, level);
+        this.object = object;
     }
 
     @Override
     public InteractionResult interactAt(Player player, Vec3 vec3, InteractionHand interactionHand) {
-        System.out.println("InteractAt: " + player.getName());
-        return super.interactAt(player, vec3, interactionHand);
+        return object.getHandler().interact(IInteractHandler.InteractionType.INTERACT, player, player.level(), new Vector3d(vec3.toVector3f()));
     }
 
     @Override
     public boolean hurt(DamageSource damageSource, float f) {
-        System.out.println("Attacked: " + damageSource);
-        return super.hurt(damageSource, f);
+        return object.getHandler().interact(IInteractHandler.InteractionType.ATTACK, damageSource.getEntity(), damageSource.getEntity().level(), new Vector3d(damageSource.getSourcePosition().toVector3f())) == InteractionResult.SUCCESS;
     }
 
     @Override
