@@ -2,7 +2,7 @@ package team.dovecotmc.ccb.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
-import team.dovecotmc.ccb.common.ChaosBase;
+import team.dovecotmc.ccb.entries.ChaosBase;
 
 import java.nio.ByteBuffer;
 

@@ -1,6 +1,6 @@
 package team.dovecotmc.ccb.client.renderer.model;
 
-import static team.dovecotmc.ccb.common.ChaosBase.LOGGER;
+import static team.dovecotmc.ccb.entries.ChaosBase.LOGGER;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

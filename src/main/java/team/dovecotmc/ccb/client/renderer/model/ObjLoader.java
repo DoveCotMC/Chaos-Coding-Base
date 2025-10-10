@@ -1,6 +1,6 @@
 package team.dovecotmc.ccb.client.renderer.model;
 
-import static team.dovecotmc.ccb.common.ChaosBase.*;
+import static team.dovecotmc.ccb.entries.ChaosBase.*;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;

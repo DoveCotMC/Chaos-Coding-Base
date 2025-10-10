@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,12 +14,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import team.dovecotmc.ccb.client.boundingbox.EntityInteraction;
 import team.dovecotmc.ccb.client.boundingbox.ObbHitResult;
 import team.dovecotmc.ccb.client.renderer.Renderer;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderLoader;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderPatcher;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderInstance;
-import team.dovecotmc.ccb.common.ChaosBase;
+import team.dovecotmc.ccb.common.entities.CCBEntities;
+import team.dovecotmc.ccb.entries.ChaosBase;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -243,6 +244,7 @@ public abstract class MixinGameRenderer {
     )
     private void pick$ccbObbHitTest(float f, CallbackInfo ci) {
 //        this.minecraft.hitResult = null;
-        this.minecraft.hitResult = new ObbHitResult(Vec3.ZERO);
+//        this.minecraft.hitResult = new ObbHitResult(Vec3.ZERO);
+        this.minecraft.hitResult = new ObbHitResult(new EntityInteraction(CCBEntities.INTERACTION, this.minecraft.level));
     }
 }
