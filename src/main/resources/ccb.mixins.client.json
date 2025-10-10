@@ -7,7 +7,8 @@
     ],
     "client": [
         "MixinGameRenderer",
-        "MixinLevelRender"
+        "MixinLevelRender",
+        "MixinMinecraft"
     ],
     "injectors": {
         "defaultRequire": 1

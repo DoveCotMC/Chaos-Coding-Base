@@ -1,4 +1,4 @@
-package team.dovecotmc.ccb.common;
+package team.dovecotmc.ccb.entries;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import team.dovecotmc.ccb.common.block.CCBBlocks;
+import team.dovecotmc.ccb.common.entities.CCBEntities;
 
 public class ChaosBase implements ModInitializer {
     public static final String MOD_ID = "ccb";
@@ -18,6 +19,11 @@ public class ChaosBase implements ModInitializer {
         if (loadDevelopmentContent) {
             CCBBlocks.init();
             Configurator.setLevel(LOGGER, Level.ALL);
+            initialize(MOD_ID);
         }
+    }
+
+    public static void initialize(String modId) {
+        CCBEntities.initialize(modId);
     }
 }

@@ -12,7 +12,6 @@ import team.dovecotmc.ccb.client.renderer.Renderer;
 import team.dovecotmc.ccb.client.renderer.model.LocalModel;
 import team.dovecotmc.ccb.client.renderer.model.ObjLoader;
 import team.dovecotmc.ccb.client.renderer.model.UploadedModel;
-import team.dovecotmc.ccb.common.ChaosBase;
 import team.dovecotmc.ccb.common.block.CCBBlocks;
 import team.dovecotmc.ccb.common.file.VanillaAssetsFileProvider;
 
@@ -25,6 +24,17 @@ public class ChaosBaseClient implements ClientModInitializer {
         if (ChaosBase.loadDevelopmentContent) {
             BlockEntityRendererRegistryImpl.register(CCBBlocks.CCBBlockEntities.TEST_BLOCK_ENTITY, context -> new BlockEntityRendererTest());
         }
+
+//        EntityRendererRegistryImpl.register(CCBEntities.DUMMY, context -> new EntityRenderer<>(context) {
+//            @Override
+//            public void render(EntityDummy entity, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i) {
+//            }
+//
+//            @Override
+//            public ResourceLocation getTextureLocation(EntityDummy entity) {
+//                return MissingTextureAtlasSprite.getLocation();
+//            }
+//        });
 
         // Test
         Renderer.registerLevelRenderTask(new ResourceLocation("ccb", "test"), (poseStack, camera, gameRenderer, lightTexture) -> {

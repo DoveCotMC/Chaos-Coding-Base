@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import team.dovecotmc.ccb.common.ChaosBase;
+import team.dovecotmc.ccb.entries.ChaosBase;
 import team.dovecotmc.ccb.common.block.entity.BlockEntityTest;
 
 public class CCBBlocks {
