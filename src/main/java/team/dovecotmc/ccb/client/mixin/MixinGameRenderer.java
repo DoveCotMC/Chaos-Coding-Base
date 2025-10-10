@@ -3,11 +3,9 @@ package team.dovecotmc.ccb.client.mixin;
 import com.mojang.blaze3d.shaders.Program;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import team.dovecotmc.ccb.client.boundingbox.ObbHitResult;
 import team.dovecotmc.ccb.client.renderer.Renderer;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderLoader;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderPatcher;
@@ -56,10 +53,6 @@ public abstract class MixinGameRenderer {
 
     @Shadow
     public abstract @Nullable ShaderInstance getShader(@Nullable String string);
-
-    @Shadow
-    @Final
-    private Minecraft minecraft;
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void reloadShaders$ccbInjectTransformableShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
@@ -235,14 +228,5 @@ public abstract class MixinGameRenderer {
                 this.shaders.put(shaderName, patchedShader);
             }
         }
-    }
-
-    @Inject(
-            method = "pick",
-            at = @At("TAIL")
-    )
-    private void pick$ccbObbHitTest(float f, CallbackInfo ci) {
-//        this.minecraft.hitResult = null;
-        this.minecraft.hitResult = new ObbHitResult(Vec3.ZERO);
     }
 }
