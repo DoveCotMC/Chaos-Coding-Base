@@ -197,24 +197,24 @@ public class Obb {
     }
 
     public Matrix4f getTransformMatrix4f() {
-        Matrix3f rotation = new Matrix3f();
-        rotation.m00((float) (axes[0].x * halfExtents.x));
-        rotation.m01((float) (axes[1].x * halfExtents.y));
-        rotation.m02((float) (axes[2].x * halfExtents.z));
-
-        rotation.m10((float) (axes[0].y * halfExtents.x));
-        rotation.m11((float) (axes[1].y * halfExtents.y));
-        rotation.m12((float) (axes[2].y * halfExtents.z));
-
-        rotation.m20((float) (axes[0].z * halfExtents.x));
-        rotation.m21((float) (axes[1].z * halfExtents.y));
-        rotation.m22((float) (axes[2].z * halfExtents.z));
-
         Matrix4f transform = new Matrix4f();
-        transform.set(rotation);
-        transform.m30((float) center.x);
-        transform.m31((float) center.y);
-        transform.m32((float) center.z);
+
+        transform.translate((float) center.x, (float) center.y, (float) center.z);
+
+        Vector3d xAxis = axes[0];
+        Vector3d yAxis = axes[1];
+        Vector3d zAxis = new Vector3d(axes[2]).negate(); // ← 关键：反转 Z 轴
+
+        Matrix4f rotation = new Matrix4f().set(
+                (float) xAxis.x, (float) yAxis.x, (float) zAxis.x, 0.0f,
+                (float) xAxis.y, (float) yAxis.y, (float) zAxis.y, 0.0f,
+                (float) xAxis.z, (float) yAxis.z, (float) zAxis.z, 0.0f,
+                0.0f,           0.0f,           0.0f,           1.0f
+        );
+
+        transform.mul(rotation);
+
+        transform.scale((float) halfExtents.x, (float) halfExtents.y, (float) halfExtents.z);
 
         return transform;
     }

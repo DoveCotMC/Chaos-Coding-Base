@@ -52,6 +52,10 @@ public class HitboxManager {
         INTERACTION_OBJECTS.clear();
     }
 
+    public static void addObject(InteractObject object) {
+        INTERACTION_OBJECTS.add(object);
+    }
+
     private static double distanceTo(Vector3d location, Entity entity) {
         double d = location.x - entity.getX();
         double e = location.y - entity.getY();

@@ -70,7 +70,8 @@ public abstract class MixinLevelRender {
             Vector3f reverseCameraPos = camera.getPosition().toVector3f().mul(-1);
             poseStack.translate(reverseCameraPos.x(), reverseCameraPos.y(), reverseCameraPos.z());
 
-            Matrix4f zFix = new Matrix4f().scaling(-1.0f, 1.0f, -1.0f);
+//            Matrix4f zFix = new Matrix4f().scaling(-1.0f, 1.0f, -1.0f);
+            Matrix4f zFix = new Matrix4f().scaling(1.0f, 1.0f, 1.0f);
             Matrix4f transformMatrix = hitResult.getBoundingBox().getTransformMatrix4f();
             Matrix4f finalMatrix = new Matrix4f();
             zFix.mul(transformMatrix, finalMatrix);
