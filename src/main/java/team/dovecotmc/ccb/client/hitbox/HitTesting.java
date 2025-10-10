@@ -22,17 +22,23 @@ public class HitTesting {
         Vector3d sight = new Vector3d(player.getLookAngle().toVector3f());
 
         Vector3d hit = null;
+        double distance = 0;
         Obb box = null;
         for (Obb obb : BOXES) {
             Vector3d hitPos = obb.rayIntersect(pos, sight);
-            if (hitPos != null) {
+            if (hitPos != null && obb.contains(hitPos)) {
+                distance = 0;
+                hit = pos;
+                box = obb;
+            } else if (hitPos != null) {
                 hit = hitPos;
+                distance = distanceTo(hitPos, player);
                 box = obb;
                 break;
             }
         }
 
-        if (hit != null && Minecraft.getInstance().hitResult.distanceTo(player) > distanceTo(hit, player)) {
+        if (Minecraft.getInstance().hitResult != null && hit != null && Minecraft.getInstance().hitResult.distanceTo(player) > distance) {
             Minecraft.getInstance().hitResult = new ObbHitResult(hit, box);
         }
 

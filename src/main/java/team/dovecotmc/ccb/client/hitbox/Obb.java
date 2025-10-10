@@ -153,6 +153,11 @@ public class Obb {
     }
 
     public @Nullable Vector3d rayIntersect(Vector3d rayOrigin, Vector3d rayDirection) {
+        rayOrigin.fma(0.01, rayDirection);
+
+//        if (contains(rayOrigin))
+//            return rayOrigin;
+
         Vector3d p = new Vector3d(center).sub(rayOrigin);
         double tMin = -Double.MAX_VALUE;
         double tMax = Double.MAX_VALUE;
