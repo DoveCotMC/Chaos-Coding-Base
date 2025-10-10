@@ -25,17 +25,6 @@ public class ChaosBaseClient implements ClientModInitializer {
             BlockEntityRendererRegistryImpl.register(CCBBlocks.CCBBlockEntities.TEST_BLOCK_ENTITY, context -> new BlockEntityRendererTest());
         }
 
-//        EntityRendererRegistryImpl.register(CCBEntities.DUMMY, context -> new EntityRenderer<>(context) {
-//            @Override
-//            public void render(EntityDummy entity, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i) {
-//            }
-//
-//            @Override
-//            public ResourceLocation getTextureLocation(EntityDummy entity) {
-//                return MissingTextureAtlasSprite.getLocation();
-//            }
-//        });
-
         // Test
         Renderer.registerLevelRenderTask(new ResourceLocation("ccb", "test"), (poseStack, camera, gameRenderer, lightTexture) -> {
             poseStack.pushPose();

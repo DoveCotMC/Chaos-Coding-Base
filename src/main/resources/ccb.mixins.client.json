@@ -6,9 +6,9 @@
     "mixins": [
     ],
     "client": [
+        "accessor.AccessorLevelRenderer",
         "MixinGameRenderer",
-        "MixinLevelRender",
-        "MixinMinecraft"
+        "MixinLevelRender"
     ],
     "injectors": {
         "defaultRequire": 1

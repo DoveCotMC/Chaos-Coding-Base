@@ -16,7 +16,6 @@ import team.dovecotmc.ccb.client.renderer.Renderer;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderInstance;
 import team.dovecotmc.ccb.client.renderer.model.LocalModel;
 import team.dovecotmc.ccb.client.renderer.model.record.Face;
-import team.dovecotmc.ccb.common.ChaosBase;
 
 import java.util.HashMap;
 import java.util.List;

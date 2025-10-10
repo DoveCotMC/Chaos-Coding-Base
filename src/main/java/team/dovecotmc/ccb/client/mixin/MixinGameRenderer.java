@@ -3,9 +3,11 @@ package team.dovecotmc.ccb.client.mixin;
 import com.mojang.blaze3d.shaders.Program;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,11 +15,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import team.dovecotmc.ccb.client.hitbox.ClientBoundInteractionEntity;
+import team.dovecotmc.ccb.client.hitbox.HitTesting;
+import team.dovecotmc.ccb.client.hitbox.ObbHitResult;
 import team.dovecotmc.ccb.client.renderer.Renderer;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderLoader;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderPatcher;
 import team.dovecotmc.ccb.client.renderer.shader.TransformableShaderInstance;
-import team.dovecotmc.ccb.common.ChaosBase;
+import team.dovecotmc.ccb.entries.ChaosBase;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -53,6 +58,10 @@ public abstract class MixinGameRenderer {
 
     @Shadow
     public abstract @Nullable ShaderInstance getShader(@Nullable String string);
+
+    @Shadow
+    @Final
+    private Minecraft minecraft;
 
     @Inject(method = "reloadShaders", at = @At("TAIL"))
     private void reloadShaders$ccbInjectTransformableShaders(ResourceProvider resourceProvider, CallbackInfo ci) {
@@ -228,5 +237,15 @@ public abstract class MixinGameRenderer {
                 this.shaders.put(shaderName, patchedShader);
             }
         }
+    }
+
+    @Inject(
+            method = "pick",
+            at = @At("TAIL")
+    )
+    private void pick$ccbObbHitTest(float f, CallbackInfo ci) {
+//        if (this.minecraft.hitResult.getType().equals(HitResult.Type.BLOCK))
+//            this.minecraft.hitResult = new ObbHitResult(new ClientBoundInteractionEntity(this.minecraft.level));
+        HitTesting.pick(Minecraft.getInstance().player);
     }
 }
