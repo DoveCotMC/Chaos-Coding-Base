@@ -10,6 +10,7 @@ import org.joml.Vector3d;
 import team.dovecotmc.ccb.entries.ChaosBase;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class HitboxManager {
@@ -49,7 +50,7 @@ public class HitboxManager {
             Minecraft.getInstance().hitResult = new CCBHitResult(hit, interactObject);
         }
 
-        INTERACTION_OBJECTS.clear();
+        INTERACTION_OBJECTS.removeIf(object -> !object.isAlive());
     }
 
     public static void addObject(InteractObject object) {

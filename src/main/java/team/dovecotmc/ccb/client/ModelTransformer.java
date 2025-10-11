@@ -203,7 +203,6 @@ public class ModelTransformer {
 //        glBufferData(GL_ARRAY_BUFFER, vertexSize, GL_DYNAMIC_DRAW);
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
 //        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, GL_DYNAMIC_DRAW);
-//        System.out.println(glGetatt);
     }
 
     public int getTransformedVertexArray() {
