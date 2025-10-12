@@ -243,6 +243,8 @@ public abstract class MixinGameRenderer {
     private void pick$ccbObbHitTest(float f, CallbackInfo ci) {
 //        if (this.minecraft.hitResult.getType().equals(HitResult.Type.BLOCK))
 //            this.minecraft.hitResult = new ObbHitResult(new ClientBoundInteractionEntity(this.minecraft.level));
-        HitboxManager.pick(Minecraft.getInstance().player);
+        if (Minecraft.getInstance().player != null) {
+            HitboxManager.pick(Minecraft.getInstance().player, f);
+        }
     }
 }

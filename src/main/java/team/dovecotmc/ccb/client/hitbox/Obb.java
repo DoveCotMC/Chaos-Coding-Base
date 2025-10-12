@@ -153,11 +153,18 @@ public class Obb {
         return true;
     }
 
-    public @Nullable Vector3d rayIntersect(Vector3d rayOrigin, Vector3d rayDirection) {
+    public Obb inflate(double x, double y, double z) {
+        return new Obb(
+                new Vector3d(center),
+                new Vector3d(halfExtents).add(x, y, z)
+        );
+    }
+
+    public @Nullable HitResult rayIntersect(Vector3d rayOrigin, Vector3d rayDirection) {
         if (Minecraft.getInstance().player == null)
             return null;
 
-        rayOrigin.fma(0.01, rayDirection);
+//        rayOrigin.fma(0.01, rayDirection);
 
         Vector3d p = new Vector3d(center).sub(rayOrigin);
         double tMin = -Double.MAX_VALUE;
@@ -193,7 +200,7 @@ public class Obb {
         if (Minecraft.getInstance().player != null && hitDistance > maxPickDistance)
             return null;
 
-        return new Vector3d(rayDirection).mul(hitDistance).add(rayOrigin);
+        return new HitResult(new Vector3d(rayDirection).mul(hitDistance).add(rayOrigin), (tMin >= 0) ? tMin : tMax);
     }
 
     public Matrix4f getTransformMatrix4f() {
@@ -203,7 +210,7 @@ public class Obb {
 
         Vector3d xAxis = axes[0];
         Vector3d yAxis = axes[1];
-        Vector3d zAxis = new Vector3d(axes[2]).negate(); // ← 关键：反转 Z 轴
+        Vector3d zAxis = new Vector3d(axes[2]).negate();
 
         Matrix4f rotation = new Matrix4f().set(
                 (float) xAxis.x, (float) yAxis.x, (float) zAxis.x, 0.0f,
@@ -217,5 +224,8 @@ public class Obb {
         transform.scale((float) halfExtents.x, (float) halfExtents.y, (float) halfExtents.z);
 
         return transform;
+    }
+
+    public record HitResult(Vector3d pos, double distance) {
     }
 }
