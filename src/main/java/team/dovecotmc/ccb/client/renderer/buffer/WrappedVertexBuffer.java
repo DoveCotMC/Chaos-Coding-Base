@@ -26,6 +26,12 @@ public class WrappedVertexBuffer {
     private final Map<String, ResourceLocation> textures;
     private final Map<String, WrappedVertexBuffer> children;
 
+    public WrappedVertexBuffer() {
+        this.buffers = new HashMap<>();
+        this.textures = new HashMap<>();
+        this.children = new HashMap<>();
+    }
+
     private WrappedVertexBuffer(Map<String, VertexBuffer> buffers, Map<String, ResourceLocation> textures, Map<String, WrappedVertexBuffer> children) {
         this.buffers = buffers;
         this.textures = textures;
@@ -60,6 +66,53 @@ public class WrappedVertexBuffer {
         }
 
         return new WrappedVertexBuffer(buffers, localModel.getTexture(), children);
+    }
+
+    public WrappedVertexBuffer uploadAll(LocalModel localModel, Matrix4f pose, Matrix3f normal, int light, int overlay) {
+        RenderSystem.assertOnRenderThread();
+
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+
+        for (Map.Entry<String, List<Face>> entry : localModel.getFaces().entrySet()) {
+            String materialName = entry.getKey();
+            builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
+            localModel.consume(materialName, builder, pose, normal, light, overlay);
+
+            // Finalize and Upload
+            BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
+            VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
+            vertexBuffer.bind();
+            vertexBuffer.upload(renderedBuffer);
+            buffers.put(materialName, vertexBuffer);
+        }
+
+        for (Map.Entry<String, LocalModel> entry : localModel.getChildren().entrySet()) {
+            String name = entry.getKey();
+            LocalModel child = entry.getValue();
+            children.put(name, uploadAll(child, pose, normal, light, overlay));
+        }
+        this.textures.putAll(localModel.getTexture());
+
+        return this;
+    }
+
+    public WrappedVertexBuffer uploadMaterial(LocalModel localModel, String materialName, Matrix4f pose, Matrix3f normal, int light, int overlay) {
+        RenderSystem.assertOnRenderThread();
+
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+
+        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.NEW_ENTITY);
+        localModel.consume(materialName, builder, pose, normal, light, overlay);
+
+        // Finalize and Upload
+        BufferBuilder.RenderedBuffer renderedBuffer = builder.end();
+        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
+        vertexBuffer.bind();
+        vertexBuffer.upload(renderedBuffer);
+        buffers.put(materialName, vertexBuffer);
+        textures.put(materialName, localModel.getTexture().get(materialName));
+
+        return this;
     }
 
     public void render(IRenderContext context) {
